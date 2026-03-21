@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ランキング - POKER ROOM</title>
+<style>
+  body, button, table, th, td, h2, div, p { font-family: 'KEYpro', sans-serif; }
+  body { background-color: #1e3d2f; color: #ffffff; padding: 20px; text-align: center; margin: 0; }
+  .container { max-width: 800px; margin: 0 auto; background-color: rgba(0, 0, 0, 0.3); padding: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+  h2 { color: #f1c40f; margin-bottom: 5px; }
+  p { color: #ecf0f1; margin-bottom: 20px; font-size: 14px; }
+  
+  table { margin: 0 auto; border-collapse: collapse; width: 100%; background-color: #ffffff; color: #000; border-radius: 5px; overflow: hidden; margin-top: 20px; }
+  th, td { border: 1px solid #ccc; padding: 12px; text-align: center; }
+  th { background-color: #3498db; color: #ffffff; }
+  
+  /* 順位ごとの特別カラー */
+  .rank-1 { background-color: #f1c40f; font-weight: bold; } /* ゴールド */
+  .rank-2 { background-color: #bdc3c7; font-weight: bold; } /* シルバー */
+  .rank-3 { background-color: #cd7f32; font-weight: bold; } /* ブロンズ */
+  
+  /* プラスマイナスの色分け */
+  .plus { color: #27ae60; font-weight: bold; }
+  .minus { color: #c0392b; font-weight: bold; }
+  
+  .btn { background-color: #7f8c8d; color: white; border: none; padding: 10px 20px; font-size: 16px; cursor: pointer; border-radius: 5px; margin-top: 30px; }
+  .btn:hover { background-color: #95a5a6; }
+  #loading { font-size: 18px; color: #f39c12; margin: 20px 0; }
+</style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>👑 プレイヤーランキング</h2>
+    <p>これまでのトータル成績（Pay合計順）</p>
+
+    <div id="loading">⏳ データを読み込み中...</div>
+
+    <table id="rankingTable" style="display: none;">
+      <thead>
+        <tr>
+          <th>順位</th>
+          <th>プレイヤー名</th>
+          <th>参加回数</th>
+          <th>トータルPay (円)</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+      </tbody>
+    </table>
+
+    <button class="btn" onclick="location.href='index.html'">◀ トップページに戻る</button>
+  </div>
+
+<script>
+  // 記憶したURLを最初から組み込んでいます
+  const GAS_URL = "https://script.google.com/macros/s/AKfycbxijPOgmKGDL-UL5eAqOBKrxKVfPl4v6hsdLcWbiuwMrCWSPI5fqxu3qOmXIFTrMYCi5A/exec";
+
+  window.onload = () => {
+    // ページが開かれた瞬間にスプレッドシートへデータを取りに行く
+    fetch(GAS_URL)
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('loading').style.display = 'none';
+        
+        if (data.length === 0) {
+          document.getElementById('loading').innerText = "まだ記録がありません。";
+          document.getElementById('loading').style.display = 'block';
+          return;
+        }
+
+        const table = document.getElementById('rankingTable');
+        const tbody = document.getElementById('tableBody');
+        table.style.display = 'table';
+
+        // データを表に追加していく
+        data.forEach((player, index) => {
+          const tr = document.createElement('tr');
+          
+          let rankText = (index + 1) + "位";
+          let rankClass = "";
+          if (index === 0) { rankText = "🥇 1位"; rankClass = "rank-1"; }
+          if (index === 1) { rankText = "🥈 2位"; rankClass = "rank-2"; }
+          if (index === 2) { rankText = "🥉 3位"; rankClass = "rank-3"; }
+
+          let payClass = player.pay > 0 ? "plus" : (player.pay < 0 ? "minus" : "");
+          let payText = player.pay > 0 ? "+" + player.pay : player.pay;
+
+          tr.innerHTML = `
+            <td class="${rankClass}">${rankText}</td>
+            <td>${player.name}</td>
+            <td>${player.games} 回</td>
+            <td class="${payClass}">${payText}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      })
+      .catch(error => {
+        document.getElementById('loading').innerText = "データの読み込みに失敗しました。";
+        document.getElementById('loading').style.color = "#e74c3c";
+      });
+  };
+</script>
+</body>
+</html>

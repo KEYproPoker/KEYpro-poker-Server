@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ポーカー管理システム</title>
+<style>
+  body, button, h1, p { font-family: 'KEYpro', sans-serif; }
+  body { background-color: #1e3d2f; color: #ffffff; text-align: center; padding: 40px 20px; margin: 0; }
+  .container { max-width: 600px; margin: 0 auto; background-color: rgba(0, 0, 0, 0.3); padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+  h1 { color: #f1c40f; font-size: 32px; margin-bottom: 10px; }
+  p { font-size: 16px; margin-bottom: 40px; color: #ecf0f1; }
+  .menu-btn { display: block; width: 80%; margin: 0 auto 20px auto; padding: 15px; background-color: #f39c12; color: #ffffff; font-size: 20px; font-weight: bold; text-decoration: none; border: none; border-radius: 8px; cursor: pointer; transition: background-color 0.3s; }
+  .menu-btn:hover { background-color: #e67e22; }
+  .menu-btn.ranking { background-color: #3498db; }
+  .menu-btn.ranking:hover { background-color: #2980b9; }
+  .footer-text { margin-top: 30px; font-size: 12px; color: #7f8c8d; }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>POKER ROOM</h1>
+    <p>チップ精算・ランキング管理システム</p>
+    <button class="menu-btn" onclick="location.href='calc.html'">💰 チップ精算をする</button>
+    <button class="menu-btn ranking" onclick="location.href='ranking.html'">👑 ランキングを見る</button>
+    <div class="footer-text">© 2026 Poker Room System</div>
+  </div>
+</body>
+</html>

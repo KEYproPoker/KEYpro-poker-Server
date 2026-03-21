@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>チップ精算 - POKER ROOM</title>
+<style>
+  body, input, button, table, th, td, h2, div { font-family: 'KEYpro', sans-serif; }
+  body { background-color: #1e3d2f; color: #ffffff; padding: 20px; text-align: center; margin: 0; }
+  .container { max-width: 800px; margin: 0 auto; background-color: rgba(0, 0, 0, 0.3); padding: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+  h2 { color: #f1c40f; margin-bottom: 20px; }
+  table { margin: 0 auto; border-collapse: collapse; width: 100%; background-color: #ffffff; color: #000; border-radius: 5px; overflow: hidden; }
+  th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+  th { background-color: #2c3e50; color: #ffffff; }
+  input { width: 100%; padding: 5px; box-sizing: border-box; text-align: right; font-size: 16px; }
+  input[type="text"].name-input { text-align: left; }
+  .readonly { background-color: #e9ecef; border: none; font-weight: bold; outline: none; }
+  .summary { margin-top: 20px; font-size: 20px; font-weight: bold; color: #ecf0f1; }
+  .match { color: #2ecc71; }
+  .error { color: #e74c3c; }
+  
+  .btn { background-color: #f39c12; color: white; border: none; padding: 10px 20px; font-size: 16px; cursor: pointer; border-radius: 5px; margin-top: 15px; font-weight: bold; }
+  .btn:hover { background-color: #e67e22; }
+  
+  .save-btn { background-color: #e74c3c; font-size: 18px; padding: 15px 30px; margin-top: 30px; width: 80%; display: block; margin-left: auto; margin-right: auto; }
+  .save-btn:hover { background-color: #c0392b; }
+  .save-btn:disabled { background-color: #95a5a6; cursor: not-allowed; }
+  
+  .back-btn { background-color: #7f8c8d; margin-top: 30px; }
+  .back-btn:hover { background-color: #95a5a6; }
+  .draft-notice { font-size: 12px; color: #bdc3c7; margin-top: 10px; }
+</style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>💰 チップ精算</h2>
+
+    <table id="calcTable">
+      <thead>
+        <tr>
+          <th>プレイヤー名</th>
+          <th>エントリー</th>
+          <th>最終持ち点</th>
+          <th>精算後 (点)</th>
+          <th>Pay (円)</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+      </tbody>
+    </table>
+
+    <button class="btn" onclick="addRow()">+ プレイヤーを追加</button>
+
+    <div class="summary" id="checkResult">
+      合計Pay: <span id="totalPay">0</span> 円 <br>
+      (状態: <span id="statusMessage" class="match">OK</span>)
+    </div>
+    
+    <div class="draft-notice">※入力内容はブラウザに自動保存されています</div>
+
+    <button class="btn save-btn" id="saveBtn" onclick="saveData()">💾 最終結果をスプレッドシートに記録</button>
+
+    <button class="btn back-btn" onclick="location.href='index.html'">◀ トップページに戻る</button>
+  </div>
+
+<script>
+  const STARTING_CHIPS = 20000;
+  const RATE = 10;
+  const INITIAL_ROWS = 5;
+
+  function createRow() {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input type="text" class="name-input" placeholder="名前" oninput="calculate()"></td>
+      <td><input type="number" class="entry" value="1" min="0" oninput="calculate()"></td>
+      <td><input type="number" class="final-chips" value="0" step="100" oninput="calculate()"></td>
+      <td><input type="text" class="result readonly" value="-20000" readonly tabindex="-1"></td>
+      <td><input type="text" class="pay readonly" value="-2000" readonly tabindex="-1"></td>
+    `;
+    return tr;
+  }
+
+  function addRow() {
+    document.getElementById('tableBody').appendChild(createRow());
+    calculate();
+  }
+
+  function calculate() {
+    const rows = document.querySelectorAll('#tableBody tr');
+    let totalPaySum = 0;
+    let draftData = []; 
+
+    rows.forEach(row => {
+      const name = row.querySelector('.name-input').value;
+      const entry = parseFloat(row.querySelector('.entry').value) || 0;
+      const finalChips = parseFloat(row.querySelector('.final-chips').value) || 0;
+      
+      const result = finalChips - (entry * STARTING_CHIPS);
+      const pay = result / RATE;
+
+      row.querySelector('.result').value = result;
+      row.querySelector('.pay').value = pay;
+
+      totalPaySum += pay;
+
+      draftData.push({ name, entry, finalChips });
+    });
+
+    document.getElementById('totalPay').innerText = totalPaySum;
+    const msg = document.getElementById('statusMessage');
+    
+    if (totalPaySum === 0) {
+      msg.innerText = "ピッタリ合っています！";
+      msg.className = "match";
+    } else {
+      msg.innerText = `エラー: ${totalPaySum > 0 ? '+' : ''}${totalPaySum} 円ズレています`;
+      msg.className = "error";
+    }
+
+    localStorage.setItem('pokerDraft', JSON.stringify(draftData));
+  }
+
+  function loadDraft() {
+    const draft = localStorage.getItem('pokerDraft');
+    const tableBody = document.getElementById('tableBody');
+    
+    if (draft) {
+      const draftData = JSON.parse(draft);
+      draftData.forEach(data => {
+        const tr = createRow();
+        tr.querySelector('.name-input').value = data.name;
+        tr.querySelector('.entry').value = data.entry;
+        tr.querySelector('.final-chips').value = data.finalChips;
+        tableBody.appendChild(tr);
+      });
+      calculate(); 
+    } else {
+      for (let i = 0; i < INITIAL_ROWS; i++) tableBody.appendChild(createRow());
+      calculate();
+    }
+  }
+
+  function saveData() {
+    // ご指定いただいたURLを最初から組み込んでいます！
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbxijPOgmKGDL-UL5eAqOBKrxKVfPl4v6hsdLcWbiuwMrCWSPI5fqxu3qOmXIFTrMYCi5A/exec";
+
+    const rows = document.querySelectorAll('#tableBody tr');
+    let playerData = [];
+    let hasName = false;
+
+    rows.forEach(row => {
+      const name = row.querySelector('.name-input').value.trim();
+      if (name !== "") {
+        hasName = true;
+        playerData.push({
+          name: name,
+          entry: parseFloat(row.querySelector('.entry').value) || 0,
+          finalChips: parseFloat(row.querySelector('.final-chips').value) || 0,
+          result: parseFloat(row.querySelector('.result').value) || 0,
+          pay: parseFloat(row.querySelector('.pay').value) || 0
+        });
+      }
+    });
+
+    if (!hasName) {
+      alert("プレイヤー名を入力してください！");
+      return;
+    }
+
+    const totalPay = parseFloat(document.getElementById('totalPay').innerText);
+    if (totalPay !== 0) {
+      if (!confirm("合計Payが0円ではありません！\n本当にこのまま保存してもよろしいですか？")) return;
+    }
+
+    const btn = document.getElementById('saveBtn');
+    btn.innerText = "⏳ 通信中...";
+    btn.disabled = true;
+
+    fetch(GAS_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(playerData)
+    })
+    .then(() => {
+      alert("✨ スプレッドシートに成績を記録しました！");
+      btn.innerText = "💾 最終結果をスプレッドシートに記録";
+      btn.disabled = false;
+      
+      if(confirm("画面をリセットして次のゲームの準備をしますか？")) {
+        localStorage.removeItem('pokerDraft');
+        location.reload();
+      }
+    })
+    .catch(error => {
+      alert("通信エラーが発生しました。");
+      btn.innerText = "💾 最終結果をスプレッドシートに記録";
+      btn.disabled = false;
+    });
+  }
+
+  window.onload = loadDraft;
+</script>
+</body>
+</html>
