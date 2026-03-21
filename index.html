@@ -29,3 +29,114 @@
   .player-badge .badge-name { font-weight: bold; color: #fff; }
   .player-badge .badge-entry { color: #e74c3c; font-weight: bold; background: #fff; padding: 2px 6px; border-radius: 4px; font-size: 12px; }
   .empty-text { color: #95a5a6; font-size: 14px; width: 100%; }
+
+  .menu-btn.ranking { display: block; width: 80%; margin: 0 auto; padding: 20px; background: linear-gradient(145deg, #2c3e50, #1a252f); color: #ffffff; font-size: 22px; font-weight: bold; text-decoration: none; border: 1px solid #7f8c8d; border-radius: 50px; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.5); }
+  .menu-btn.ranking:hover { background: linear-gradient(145deg, #34495e, #2c3e50); transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.6); }
+  
+  .footer-text { margin-top: 40px; font-size: 12px; color: #7f8c8d; }
+
+  .secret-btn { position: fixed; bottom: 15px; left: 15px; background: transparent; color: #7f8c8d; border: none; font-size: 14px; cursor: pointer; padding: 10px; transition: color 0.3s; text-align: left; outline: none; z-index: 100; }
+  .secret-btn:hover { color: #d4af37; }
+
+  @media screen and (max-width: 600px) {
+    body { padding: 15px 10px; }
+    .container { padding: 30px 15px; }
+    h1 { font-size: 28px; }
+    .timer-display { font-size: 36px; }
+    .menu-btn.ranking { width: 95%; font-size: 18px; padding: 18px; }
+    .secret-btn { bottom: 10px; left: 10px; font-size: 12px; padding: 5px; }
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="suits">
+      <span class="suit-black">♠</span><span class="suit-red">♥</span><span class="suit-black">♣</span><span class="suit-red">♦</span>
+    </div>
+    <h1>KEYpro poker</h1>
+    <p>公式ダッシュボード</p>
+    
+    <div class="live-dashboard">
+      <div class="date-header" id="todayDate">----年--月--日</div>
+      
+      <div class="timer-label">⏳ 本日のプレイ時間</div>
+      <div class="timer-display" id="mainTimer">00:00</div>
+      
+      <div class="board-title">♠️ プレイ中のゲーム状況 ♥️</div>
+      <div id="topLiveBoard" class="live-grid">
+        <div class="empty-text">現在プレイ中のゲームはありません</div>
+      </div>
+    </div>
+
+    <button class="menu-btn ranking" onclick="location.href='ranking.html'">👑 総合ランキングを見る</button>
+    <div class="footer-text">© 2026 KEYpro poker</div>
+  </div>
+
+  <button class="secret-btn" onclick="checkPassword()">⚙️ 精算</button>
+
+  <script>
+    function checkPassword() {
+      const pass = prompt("管理者パスワードを入力してください:");
+      if (pass === "keypro5424") {
+        location.href = 'calc.html';
+      } else if (pass !== null) {
+        alert("パスワードが違います。");
+      }
+    }
+
+    // カウントアップタイマーの同期機能
+    setInterval(() => {
+      const timerState = JSON.parse(localStorage.getItem('pokerTimerState')) || { running: false, elapsedSeconds: 0, lastUpdate: Date.now() };
+      
+      let currentElapsed = timerState.elapsedSeconds;
+      
+      if (timerState.running) {
+        const elapsedSinceUpdate = Math.floor((Date.now() - timerState.lastUpdate) / 1000);
+        currentElapsed += elapsedSinceUpdate;
+      }
+
+      // 何時間経過したかの計算 (1時間を超えたらHH:MM:SSで表示)
+      const h = Math.floor(currentElapsed / 3600);
+      const m = Math.floor((currentElapsed % 3600) / 60);
+      const s = currentElapsed % 60;
+      
+      const formattedTime = (h > 0 ? String(h).padStart(2, '0') + ':' : '') + 
+                            String(m).padStart(2, '0') + ':' + 
+                            String(s).padStart(2, '0');
+                            
+      document.getElementById('mainTimer').innerText = formattedTime;
+    }, 1000);
+
+    window.onload = () => {
+      const now = new Date();
+      const dateStr = now.getFullYear() + "年" + (now.getMonth() + 1) + "月" + now.getDate() + "日";
+      document.getElementById('todayDate').innerText = dateStr;
+
+      const draft = localStorage.getItem('pokerDraft');
+      const board = document.getElementById('topLiveBoard');
+      
+      if (draft) {
+        const draftData = JSON.parse(draft);
+        let html = "";
+        let count = 0;
+        
+        draftData.forEach(player => {
+          if (player.name && player.name.trim() !== "" && player.entry > 0) {
+            html += `
+              <div class="player-badge">
+                <span class="badge-name">${player.name}</span>
+                <span class="badge-entry">${player.entry} Entry</span>
+              </div>
+            `;
+            count++;
+          }
+        });
+        
+        if (count > 0) {
+          board.innerHTML = html;
+        }
+      }
+    };
+  </script>
+</body>
+</html>
