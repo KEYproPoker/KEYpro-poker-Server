@@ -39,9 +39,12 @@
   input { width: 100%; padding: 12px; text-align: right; font-size: 16px; border: 1px solid #555; border-radius: 8px; background-color: rgba(0, 0, 0, 0.6); color: #fff; transition: all 0.2s; outline: none; }
   input:focus { border-color: #d4af37; background-color: rgba(0, 0, 0, 0.9); box-shadow: 0 0 10px rgba(212, 175, 55, 0.3); }
   input[type="text"].name-input { text-align: left; }
+  
   /* iOSで数字キーボードの時、文字が小さくならないように */
   input[type="number"] { font-size: 18px; }
-  .readonly { background-color: transparent; border: none; font-weight: bold; color: #bdc3c7; text-align: right; padding-right: 0; font-size: 16px; }
+  
+  /* Kを無くした分、表示が崩れないようにフォントサイズを微調整 */
+  .readonly { background-color: transparent; border: none; font-weight: bold; color: #bdc3c7; text-align: right; padding-right: 0; font-size: 15px; }
   
   /* 操作ボタン（シンプルに） */
   .del-btn { background-color: transparent; color: #e74c3c; border: 1px solid #e74c3c; padding: 7px 12px; border-radius: 20px; cursor: pointer; font-size: 12px; white-space: nowrap; transition: all 0.3s; }
@@ -89,7 +92,8 @@
     input { width: 65%; padding: 12px; font-size: 18px; border-color: #666; }
     input[type="text"].name-input { text-align: left; }
     
-    .readonly { text-align: right; font-size: 16px; padding-right: 5px; color: #fff; }
+    /* 桁数が増えても収まるようにフォントサイズを微調整 */
+    .readonly { text-align: right; font-size: 15px; padding-right: 5px; color: #fff; }
 
     td:last-child { position: absolute; bottom: 12px; right: 15px; padding: 0; display: block; width: auto; }
     td:last-child::before { display: none; }
@@ -174,7 +178,7 @@
 <body>
 
   <div class="container">
-    <h2>チップ清算</h2>
+    <h2>チップ精算</h2>
 
     <div class="timer-control">
       <div class="timer-control-title">⏱️ プレイ時間タイマー (全画面連動)</div>
@@ -326,16 +330,9 @@
     const RATE = 10;
     const INITIAL_ROWS = 5;
 
-    // 数字をカンマ区切りにする関数（画像用）
+    // ★ 数字をカンマ区切りにする関数（共通で使用）
     function formatNumber(num) {
       return num.toLocaleString();
-    }
-
-    // 入力画面用のK表記
-    function formatK(num) {
-      if (num === 0) return "0";
-      if (Math.abs(num) >= 1000) return (num / 1000).toString() + "K";
-      return num.toString();
     }
 
     window.calculate = function() {
@@ -351,20 +348,22 @@
         const result = finalChips - (entry * STARTING_CHIPS);
         const pay = result / RATE;
 
-        row.querySelector('.result').value = formatK(result);
-        row.querySelector('.pay').value = formatK(pay);
+        // ★ Kを使わず、カンマ区切りの数字をセット
+        row.querySelector('.result').value = formatNumber(result);
+        row.querySelector('.pay').value = formatNumber(pay);
 
         totalPaySum += pay;
         draftData.push({ name: row.querySelector('.name-input').value, entry, finalChips });
       });
 
-      document.getElementById('totalPay').innerText = formatK(totalPaySum);
+      // ★ 合計値もカンマ区切りで表示
+      document.getElementById('totalPay').innerText = formatNumber(totalPaySum);
       const msg = document.getElementById('statusMessage');
       if (totalPaySum === 0) {
         msg.innerText = "✨ 確認済 (誤差なし)";
         msg.className = "summary match";
       } else {
-        msg.innerText = `⚠️ エラー: ${totalPaySum > 0 ? '+' : ''}${formatK(totalPaySum)} のズレ`;
+        msg.innerText = `⚠️ エラー: ${totalPaySum > 0 ? '+' : ''}${formatNumber(totalPaySum)} のズレ`;
         msg.className = "summary error";
       }
 
@@ -372,14 +371,15 @@
       set(ref(db, 'pokerSession/players'), draftData);
     };
 
+    // ★ 初期値の -20K や -2K も通常の数字に変更
     window.createRow = function(name = "", entry = 1, finalChips = 0) {
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td data-label="名前"><input type="text" class="name-input" placeholder="名前" value="${name}" oninput="window.calculate()"></td>
         <td data-label="エントリー"><input type="number" class="entry" value="${entry}" min="0" oninput="window.calculate()"></td>
         <td data-label="最終持ち点"><input type="number" class="final-chips" value="${finalChips}" step="100" oninput="window.calculate()"></td>
-        <td data-label="精算後 (点)"><input type="text" class="result readonly" value="-20K" readonly tabindex="-1"></td>
-        <td data-label="Pay (円)"><input type="text" class="pay readonly" value="-2K" readonly tabindex="-1"></td>
+        <td data-label="精算後 (点)"><input type="text" class="result readonly" value="-20,000" readonly tabindex="-1"></td>
+        <td data-label="Pay (円)"><input type="text" class="pay readonly" value="-2,000" readonly tabindex="-1"></td>
         <td data-label=""><button class="del-btn" onclick="window.removeRow(this)">✖ 削除</button></td>
       `;
       return tr;
