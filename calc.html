@@ -3,94 +3,178 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>チップ精算管理 - KEYpro poker Server</title>
+<title>チップ精算 - KEYpro poker Server</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
-  /* 画面のハミ出し・横揺れを防ぐ設定（キープ） */
+  /* 全体の設定（横揺れ防止キープ） */
   *, *::before, *::after { box-sizing: border-box; }
 
   body, input, button, table, th, td, h2, div { font-family: 'KEYpro', sans-serif; }
-  /* 背景をテーマカラーのグリーンに戻し、横揺れをブロック */
   body { background: radial-gradient(circle at center, #1a5c38 0%, #0a2e1c 100%); color: #ffffff; padding: 15px; margin: 0; min-height: 100vh; overflow-x: hidden; }
   
-  /* コンテナを少しリッチに（半透明の黒＋ゴールドの枠） */
-  .container { width: 100%; max-width: 900px; margin: 0 auto; background-color: rgba(0, 0, 0, 0.6); padding: 25px 20px; border-radius: 12px; border: 1px solid #d4af37; box-shadow: 0 8px 32px rgba(0,0,0,0.6); }
+  /* コンテナ：高級感のあるダーク＆ゴールド */
+  .container { width: 100%; max-width: 900px; margin: 0 auto; background-color: rgba(0, 0, 0, 0.7); padding: 25px 20px; border-radius: 16px; border: 2px solid #d4af37; box-shadow: 0 10px 40px rgba(0,0,0,0.7); }
   
-  h2 { color: #d4af37; margin-top: 0; margin-bottom: 20px; font-size: 22px; border-bottom: 1px dashed #7f8c8d; padding-bottom: 15px; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); letter-spacing: 1px; text-align: center; }
+  /* タイトル：シンプルに「チップ精算」 */
+  h2 { color: #d4af37; margin-top: 0; margin-bottom: 20px; font-size: 24px; border-bottom: 2px solid #d4af37; padding-bottom: 15px; text-shadow: 0px 4px 10px rgba(0,0,0,0.8); letter-spacing: 3px; text-align: center; font-weight: bold; }
 
-  /* タイマーコントロールパネル（少し高級感） */
-  .timer-control { background: rgba(0, 0, 0, 0.4); border: 1px solid #7f8c8d; border-radius: 8px; padding: 15px; margin-bottom: 25px; display: flex; flex-direction: column; align-items: center; }
-  .timer-control-title { color: #ecf0f1; font-size: 13px; margin-bottom: 10px; letter-spacing: 1px; }
-  .timer-display-small { font-family: 'Courier New', monospace; font-size: 34px; font-weight: bold; color: #2ecc71; margin-bottom: 15px; text-shadow: 0 0 10px rgba(46,204,113,0.4); }
-  .timer-btns { display: flex; gap: 10px; width: 100%; justify-content: center; }
-  .t-btn { padding: 10px 20px; border: 1px solid rgba(255,255,255,0.2); border-radius: 50px; font-weight: bold; cursor: pointer; color: #fff; font-size: 14px; flex: 1; max-width: 120px; transition: all 0.2s; }
-  .btn-start { background: linear-gradient(145deg, #27ae60, #2ecc71); }
-  .btn-stop { background: linear-gradient(145deg, #d35400, #e67e22); }
-  .btn-reset { background: linear-gradient(145deg, #7f8c8d, #95a5a6); }
+  /* タイマーコントロールパネル（洗練） */
+  .timer-control { background: rgba(0, 0, 0, 0.4); border: 1px solid #7f8c8d; border-radius: 12px; padding: 20px; margin-bottom: 30px; display: flex; flex-direction: column; align-items: center; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); }
+  .timer-control-title { color: #bdc3c7; font-size: 14px; margin-bottom: 12px; letter-spacing: 1px; }
+  .timer-display-small { font-family: 'Courier New', monospace; font-size: 38px; font-weight: bold; color: #2ecc71; margin-bottom: 20px; text-shadow: 0 0 15px rgba(46,204,113,0.5); }
+  .timer-btns { display: flex; gap: 12px; width: 100%; justify-content: center; max-width: 400px; }
+  .t-btn { padding: 12px 0; border: 1px solid rgba(255,255,255,0.2); border-radius: 50px; font-weight: bold; cursor: pointer; color: #fff; font-size: 14px; flex: 1; transition: all 0.2s; outline: none; }
+  .btn-start { background: linear-gradient(145deg, #27ae60, #2ecc71); box-shadow: 0 4px 10px rgba(39, 174, 96, 0.3); }
+  .btn-stop { background: linear-gradient(145deg, #d35400, #e67e22); box-shadow: 0 4px 10px rgba(211, 84, 0, 0.3); }
+  .btn-reset { background: linear-gradient(145deg, #7f8c8d, #95a5a6); box-shadow: 0 4px 10px rgba(127, 140, 141, 0.3); }
+  .t-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 15px rgba(0,0,0,0.5); }
 
-  /* テーブルスタイル（PC向け） */
-  .table-wrapper { width: 100%; margin-bottom: 20px; overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; background-color: rgba(255, 255, 255, 0.05); border-radius: 8px; overflow: hidden; }
-  th, td { border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding: 12px 8px; text-align: center; }
-  th { background-color: #1a252f; color: #d4af37; font-size: 13px; white-space: nowrap; }
+  /* テーブルスタイル（PC向け、モダン化） */
+  .table-wrapper { width: 100%; margin-bottom: 25px; overflow-x: auto; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+  table { width: 100%; border-collapse: collapse; background-color: rgba(255, 255, 255, 0.03); min-width: 600px; }
+  th, td { border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding: 15px 10px; text-align: center; }
+  th { background-color: #1a252f; color: #d4af37; font-size: 14px; white-space: nowrap; font-weight: bold; letter-spacing: 1px; }
   
-  /* 入力欄（プロ仕様かつ少しリッチに） */
-  input { width: 100%; padding: 10px; text-align: right; font-size: 16px; border: 1px solid #7f8c8d; border-radius: 6px; background-color: rgba(0, 0, 0, 0.5); color: #fff; transition: border 0.2s; }
-  input:focus { border-color: #d4af37; outline: none; background-color: rgba(0, 0, 0, 0.8); }
+  /* 入力欄（プロ仕様、より見やすく） */
+  input { width: 100%; padding: 12px; text-align: right; font-size: 16px; border: 1px solid #555; border-radius: 8px; background-color: rgba(0, 0, 0, 0.6); color: #fff; transition: all 0.2s; outline: none; }
+  input:focus { border-color: #d4af37; background-color: rgba(0, 0, 0, 0.9); box-shadow: 0 0 10px rgba(212, 175, 55, 0.3); }
   input[type="text"].name-input { text-align: left; }
-  .readonly { background-color: transparent; border: none; font-weight: bold; color: #bdc3c7; text-align: right; padding-right: 0; }
+  /* iOSで数字キーボードの時、文字が小さくならないように */
+  input[type="number"] { font-size: 18px; }
+  .readonly { background-color: transparent; border: none; font-weight: bold; color: #bdc3c7; text-align: right; padding-right: 0; font-size: 16px; }
   
-  /* 操作ボタン */
-  .del-btn { background-color: #c0392b; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; white-space: nowrap; transition: background 0.3s; }
-  .del-btn:hover { background-color: #e74c3c; }
+  /* 操作ボタン（シンプルに） */
+  .del-btn { background-color: transparent; color: #e74c3c; border: 1px solid #e74c3c; padding: 7px 12px; border-radius: 20px; cursor: pointer; font-size: 12px; white-space: nowrap; transition: all 0.3s; }
+  .del-btn:hover { background-color: #e74c3c; color: #fff; }
   
-  .btn { background: linear-gradient(145deg, #2c3e50, #1a252f); color: white; border: 1px solid #7f8c8d; padding: 12px 20px; font-size: 15px; cursor: pointer; border-radius: 50px; margin-top: 10px; display: block; width: 100%; transition: all 0.3s; font-weight: bold; }
-  .btn:hover { background: linear-gradient(145deg, #34495e, #2c3e50); transform: translateY(-2px); }
+  /* メインボタン群（ゴールドとVIPブルー） */
+  .btn-group { display: flex; flex-direction: column; gap: 15px; margin-top: 30px; }
+  .btn { display: block; width: 100%; border-radius: 50px; cursor: pointer; transition: all 0.3s; font-weight: bold; text-align: center; text-decoration: none; outline: none; }
+  
+  .add-btn { background: rgba(255,255,255,0.05); color: #fff; border: 1px solid #7f8c8d; padding: 15px; font-size: 15px; }
+  .add-btn:hover { background: rgba(255,255,255,0.1); border-color: #fff; }
+  
+  .save-btn { background: linear-gradient(145deg, #bf953f, #b38728); color: #fff; border: 1px solid #fcf6ba; font-size: 18px; padding: 18px; position: relative; overflow: hidden; box-shadow: 0 5px 15px rgba(184, 134, 11, 0.4); text-shadow: 1px 1px 2px rgba(0,0,0,0.6); }
+  .save-btn:hover { background: linear-gradient(145deg, #d4af37, #bf953f); transform: translateY(-2px); box-shadow: 0 8px 25px rgba(184, 134, 11, 0.6); }
+  .save-btn:disabled { background: #95a5a6; border-color: #7f8c8d; cursor: not-allowed; transform: none; box-shadow: none; }
+  
+  .back-btn { background: transparent; border: 1px solid #ecf0f1; margin-top: 20px; color: #ecf0f1; padding: 15px; font-size: 15px; }
+  .back-btn:hover { background: rgba(255,255,255,0.1); }
   
   /* サマリー（合計確認エリア） */
-  .summary { margin-top: 25px; font-size: 18px; font-weight: bold; color: #fff; background: rgba(0,0,0,0.4); padding: 15px; border-radius: 8px; border: 1px solid #d4af37; text-align: left; display: flex; justify-content: space-between; align-items: center; }
-  .match { color: #2ecc71; font-size: 14px; font-weight: normal; text-shadow: 1px 1px 2px #000; }
-  .error { color: #e74c3c; font-size: 14px; font-weight: normal; text-shadow: 1px 1px 2px #000; }
-  
-  /* 保存ボタンなど */
-  .save-btn { background: linear-gradient(145deg, #b8860b, #8b6508); color: #fff; border: 1px solid #ffd700; font-size: 18px; padding: 15px; margin-top: 25px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
-  .save-btn:hover { background: linear-gradient(145deg, #d4af37, #b8860b); }
-  .save-btn:disabled { background: #95a5a6; border-color: #7f8c8d; cursor: not-allowed; }
-  .back-btn { background-color: transparent; border: 1px solid #ecf0f1; margin-top: 15px; color: #ecf0f1; }
-  .draft-notice { font-size: 12px; color: #bdc3c7; margin-top: 10px; text-align: center; }
+  .summary { margin-top: 30px; font-size: 20px; font-weight: bold; color: #fff; background: rgba(0,0,0,0.5); padding: 20px; border-radius: 12px; border: 2px solid #d4af37; text-align: left; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+  .total-label { color: #d4af37; font-size: 16px; margin-right: 10px; }
+  .status-badge { font-size: 14px; padding: 5px 15px; border-radius: 20px; font-weight: normal; }
+  .match .status-badge { background-color: rgba(46, 204, 113, 0.2); color: #2ecc71; border: 1px solid #2ecc71; }
+  .error .status-badge { background-color: rgba(231, 76, 60, 0.2); color: #e74c3c; border: 1px solid #e74c3c; animation: pulse 2s infinite; }
+  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); } 100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); } }
+
+  .draft-notice { font-size: 12px; color: #bdc3c7; margin-top: 15px; text-align: center; letter-spacing: 1px; }
 
   /* 📱 スマホ向け（高密度・入力特化のリストビュー） */
   @media screen and (max-width: 600px) {
     body { padding: 10px 5px; }
-    .container { padding: 15px 10px; border-width: 1px; }
+    .container { padding: 20px 10px; border-radius: 12px; }
+    h2 { font-size: 20px; letter-spacing: 2px; }
     
     table, thead, tbody, tr, td { display: block; width: 100%; }
     thead { display: none; }
     
     /* 1人分のブロックをカード風に */
-    tr { background: rgba(255, 255, 255, 0.05); margin-bottom: 12px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.1); padding: 12px 12px 40px 12px; position: relative; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+    tr { background: rgba(255, 255, 255, 0.04); margin-bottom: 15px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.08); padding: 15px 15px 50px 15px; position: relative; box-shadow: 0 5px 15px rgba(0,0,0,0.4); }
     
-    td { padding: 4px 0; border: none; display: flex; align-items: center; justify-content: space-between; }
+    td { padding: 6px 0; border: none; display: flex; align-items: center; justify-content: space-between; }
     td::before { content: attr(data-label); color: #bdc3c7; font-size: 12px; width: 35%; font-weight: bold; }
     
-    input { width: 65%; padding: 10px; font-size: 16px; border-color: #555; }
+    input { width: 65%; padding: 12px; font-size: 18px; border-color: #666; }
     input[type="text"].name-input { text-align: left; }
     
-    td:nth-child(4), td:nth-child(5) { padding: 2px 0; }
-    .readonly { text-align: right; font-size: 15px; padding-right: 5px; }
+    .readonly { text-align: right; font-size: 16px; padding-right: 5px; color: #fff; }
 
-    td:last-child { position: absolute; bottom: 10px; right: 12px; padding: 0; display: block; width: auto; }
+    td:last-child { position: absolute; bottom: 12px; right: 15px; padding: 0; display: block; width: auto; }
     td:last-child::before { display: none; }
-    .del-btn { padding: 5px 10px; font-size: 12px; border-radius: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+    .del-btn { padding: 6px 12px; font-size: 12px; border-radius: 20px; }
     
-    .timer-btns .t-btn { padding: 12px 5px; }
-    .summary { flex-direction: column; align-items: flex-start; gap: 5px; }
+    .timer-display-small { font-size: 30px; }
+    .timer-btns .t-btn { padding: 12px 5px; font-size: 12px; }
+    .summary { flex-direction: column; align-items: center; gap: 10px; font-size: 18px; padding: 15px; }
+    .save-btn { font-size: 16px; padding: 16px; }
+  }
+
+  /* ★★★ Geminiオリジナル：画像生成用エリア（画面外に配置） ★★★ */
+  #reportArea {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+    width: 1200px; /* 16:9に近い高解像度 */
+    height: 675px;
+    background: radial-gradient(circle at center, #1a5c38 0%, #0a2e1c 100%);
+    color: #ffffff;
+    padding: 40px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    border: 10px solid #d4af37;
+  }
+  .report-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 3px solid #d4af37;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+  }
+  .report-title {
+    font-size: 48px;
+    color: #d4af37;
+    font-weight: bold;
+    letter-spacing: 5px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+  }
+  .report-suits { font-size: 32px; letter-spacing: 10px; }
+  .report-red { color: #e74c3c; }
+  .report-meta {
+    font-size: 20px;
+    color: #bdc3c7;
+    text-align: right;
+    line-height: 1.6;
+  }
+  .report-table {
+    width: 100%;
+    border-collapse: collapse;
+    flex-grow: 1;
+    margin-bottom: 20px;
+  }
+  .report-table th, .report-table td {
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 10px;
+    text-align: center;
+    font-size: 18px;
+  }
+  .report-table th {
+    background-color: #1a252f;
+    color: #d4af37;
+    font-weight: bold;
+  }
+  .report-table td.name-cell { text-align: left; font-weight: bold; }
+  .report-table td.pay-cell { font-weight: bold; font-size: 22px; }
+  .report-plus { color: #2ecc71; }
+  .report-minus { color: #e74c3c; }
+  .report-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 18px;
+    color: #7f8c8d;
+    border-top: 1px solid rgba(255,255,255,0.2);
+    padding-top: 15px;
   }
 </style>
 </head>
 <body>
 
   <div class="container">
-    <h2>💰 チップ精算ダッシュボード</h2>
+    <h2>チップ清算</h2>
 
     <div class="timer-control">
       <div class="timer-control-title">⏱️ プレイ時間タイマー (全画面連動)</div>
@@ -119,18 +203,59 @@
       </table>
     </div>
 
-    <button class="btn" onclick="window.addRow()">+ プレイヤー行を追加</button>
-
     <div class="summary" id="checkResult">
-      <div>合計 Pay: <span id="totalPay">0</span></div>
-      <div id="statusMessage" class="match">✨ 確認済 (誤差なし)</div>
+      <div><span class="total-label">合計 Pay:</span> <span id="totalPay" style="font-size: 24px;">0</span> <span style="font-size: 12px; color: #aaa;">円</span></div>
+      <div id="statusMessage" class="match"><span class="status-badge">✨ 確認済 (誤差なし)</span></div>
     </div>
     
     <div class="draft-notice">※入力内容はクラウドへ自動同期されています</div>
 
-    <button class="btn save-btn" id="saveBtn" onclick="window.saveData()">💾 成績を確定・記録する</button>
-    <button class="btn back-btn" onclick="location.href='index.html'">◀ トップページへ戻る</button>
+    <div class="btn-group">
+      <button class="btn add-btn" onclick="window.addRow()">+ プレイヤー行を追加</button>
+      <button class="btn save-btn" id="saveBtn" onclick="window.confirmAndSave()">💾 成績を確定・記録する</button>
+      <button class="btn back-btn" onclick="location.href='index.html'">◀ トップページへ戻る</button>
+    </div>
   </div>
+
+
+  <div id="reportArea">
+    <div class="report-header">
+      <div style="display:flex; align-items:center; gap:20px;">
+        <div class="report-suits">
+          <span>♠</span><span class="report-red">♥</span><span>♣</span><span class="report-red">♦</span>
+        </div>
+        <div class="report-title">SESSION REPORT</div>
+      </div>
+      <div class="report-meta">
+        <div id="reportDate">0000年00月00日</div>
+        <div>Play Time: <span id="reportTime">00:00:00</span></div>
+      </div>
+    </div>
+
+    <table class="report-table">
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Player</th>
+          <th>Entry</th>
+          <th>Final Chips</th>
+          <th>Score (点)</th>
+          <th>Pay (円)</th>
+        </tr>
+      </thead>
+      <tbody id="reportTableBody">
+        </tbody>
+    </table>
+
+    <div class="report-footer">
+      <div>Total Pay: <span id="reportTotalPay">0</span> 円 (Confirmed)</div>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div class="report-suits" style="font-size:16px;"><span>♠</span><span class="report-red">♥</span><span>♣</span><span class="report-red">♦</span></div>
+        <div>KEYpro poker Server</div>
+      </div>
+    </div>
+  </div>
+
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
@@ -149,7 +274,9 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
+    // -------------------------
     // タイマー処理
+    // -------------------------
     let currentTimerState = { running: false, elapsedSeconds: 0, lastUpdate: Date.now() };
 
     onValue(ref(db, 'pokerSession/timer'), (snapshot) => {
@@ -192,11 +319,19 @@
       update(ref(db, 'pokerSession/timer'), newState);
     };
 
+    // -------------------------
     // 精算処理
+    // -------------------------
     const STARTING_CHIPS = 20000;
     const RATE = 10;
     const INITIAL_ROWS = 5;
 
+    // 数字をカンマ区切りにする関数（画像用）
+    function formatNumber(num) {
+      return num.toLocaleString();
+    }
+
+    // 入力画面用のK表記
     function formatK(num) {
       if (num === 0) return "0";
       if (Math.abs(num) >= 1000) return (num / 1000).toString() + "K";
@@ -227,10 +362,10 @@
       const msg = document.getElementById('statusMessage');
       if (totalPaySum === 0) {
         msg.innerText = "✨ 確認済 (誤差なし)";
-        msg.className = "match";
+        msg.className = "summary match";
       } else {
         msg.innerText = `⚠️ エラー: ${totalPaySum > 0 ? '+' : ''}${formatK(totalPaySum)} のズレ`;
-        msg.className = "error";
+        msg.className = "summary error";
       }
 
       localStorage.setItem('pokerDraft', JSON.stringify(draftData));
@@ -277,14 +412,15 @@
       }
     };
 
-    window.saveData = function() {
-      const GAS_URL = "https://script.google.com/macros/s/AKfycbxijPOgmKGDL-UL5eAqOBKrxKVfPl4v6hsdLcWbiuwMrCWSPI5fqxu3qOmXIFTrMYCi5A/exec";
+
+    // ★★★ 成績の確定、画像生成、GAS送信の一連の処理 ★★★
+    window.confirmAndSave = function() {
       const rows = document.querySelectorAll('#tableBody tr');
       let playerData = [];
       let hasName = false;
-
       const currentPlayTime = getFormattedTime();
 
+      // データ収集
       rows.forEach(row => {
         const name = row.querySelector('.name-input').value.trim();
         if (name !== "") {
@@ -303,21 +439,101 @@
       playerData.forEach(p => checkTotal += p.pay);
       if (checkTotal !== 0) {
         if (!confirm("合計Payにズレがあります。このまま記録しますか？")) return;
+      } else {
+        if (!confirm("本日の成績を確定し、画像を生成して記録しますか？")) return;
       }
 
+      // ボタンを無効化
       const btn = document.getElementById('saveBtn');
-      btn.innerText = "⏳ 通信中...";
+      btn.innerText = "⏳ 処理中...";
       btn.disabled = true;
+
+      // 1. 画像生成用のデータを準備して描画
+      prepareReportArea(playerData, currentPlayTime);
+
+      // 2. html2canvasで画像（JPEG）を生成してダウンロード
+      const reportArea = document.getElementById('reportArea');
+      
+      // 画像生成に少し時間がかかるので、描画完了を待つためにわずかに遅延させる
+      setTimeout(() => {
+        html2canvas(reportArea, {
+          scale: 2, // 高解像度にする
+          useCORS: true, // 外部リソースがある場合
+          backgroundColor: null // 背景を透過させない
+        }).then(canvas => {
+          // CanvasをJPEGのDataURLに変換
+          const jpegUrl = canvas.toDataURL('image/jpeg', 0.9); // 品質0.9
+
+          // ダウンロード用のリンクを作成してクリック
+          const now = new Date();
+          const dateStr = now.getFullYear() + String(now.getMonth() + 1).padStart(2, '0') + String(now.getDate()).padStart(2, '0');
+          const fileName = `poker_result_${dateStr}.jpg`;
+
+          const link = document.createElement('a');
+          link.href = jpegUrl;
+          link.download = fileName;
+          link.click();
+
+          // 画像生成完了後に、GASへ送信
+          sendToGAS(playerData, btn);
+        });
+      }, 500);
+    };
+
+    // 画像生成エリアにデータを書き込む関数
+    function prepareReportArea(data, playTime) {
+      // 日付
+      const now = new Date();
+      document.getElementById('reportDate').innerText = now.getFullYear() + "年" + (now.getMonth() + 1) + "月" + now.getDate() + "日";
+      // タイム
+      document.getElementById('reportTime').innerText = playTime;
+
+      // ランキング順（Payが多い順）に並べ替え
+      const sortedData = [...data].sort((a, b) => b.pay - a.pay);
+
+      // テーブルボディ生成
+      const tbody = document.getElementById('reportTableBody');
+      tbody.innerHTML = '';
+      let totalPay = 0;
+
+      sortedData.forEach((player, index) => {
+        totalPay += player.pay;
+        const tr = document.createElement('tr');
+        
+        const payClass = player.pay > 0 ? 'report-plus' : (player.pay < 0 ? 'report-minus' : '');
+        const paySign = player.pay > 0 ? '+' : '';
+
+        tr.innerHTML = `
+          <td style="font-weight:bold; font-size:20px;">${index + 1}</td>
+          <td class="name-cell">${player.name}</td>
+          <td>${player.entry}</td>
+          <td>${formatNumber(player.finalChips)}</td>
+          <td class="${payClass}">${paySign}${formatNumber(player.result)}</td>
+          <td class="pay-cell ${payClass}">${paySign}${formatNumber(player.pay)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // 合計Pay
+      document.getElementById('reportTotalPay').innerText = formatNumber(totalPay);
+    }
+
+    // GASへデータを送信する関数
+    function sendToGAS(playerData, btn) {
+      const GAS_URL = "https://script.google.com/macros/s/AKfycbxijPOgmKGDL-UL5eAqOBKrxKVfPl4v6hsdLcWbiuwMrCWSPI5fqxu3qOmXIFTrMYCi5A/exec";
 
       fetch(GAS_URL, {
         method: 'POST', mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(playerData)
       }).then(() => {
-        alert("✨ 記録が完了しました。\nプレイ時間: " + currentPlayTime);
+        // GAS送信完了後の処理
+        alert("✨ 成績をスプレッドシートに記録しました。\n本日もお疲れ様でした！");
         btn.innerText = "💾 成績を確定・記録する";
         btn.disabled = false;
-        if(confirm("画面とタイマーをリセットして次のゲームを開始しますか？")) {
+        
+        if(confirm("画面とタイマーをリセットして次のゲーム（または次回）の準備をしますか？")) {
+          // リセット処理
           localStorage.removeItem('pokerDraft');
           set(ref(db, 'pokerSession/players'), []); 
           let newState = { running: false, elapsedSeconds: 0, lastUpdate: Date.now() };
@@ -325,11 +541,11 @@
           location.reload();
         }
       }).catch(error => {
-        alert("通信エラーが発生しました。");
-        btn.innerText = "💾 成績を確定・記録する";
+        alert("通信エラーが発生しました。スプレッドシートへの記録に失敗した可能性があります。");
+        btn.innerText = "💾 成績を記録する";
         btn.disabled = false;
       });
-    };
+    }
 
     window.onload = window.loadDraft;
   </script>
