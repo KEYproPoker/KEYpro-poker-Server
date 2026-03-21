@@ -13,7 +13,7 @@
   /* タイマーコントロールパネル */
   .timer-control { background: rgba(0, 0, 0, 0.4); border: 1px solid #7f8c8d; border-radius: 8px; padding: 15px; margin-bottom: 25px; }
   .timer-control-title { color: #ecf0f1; font-size: 14px; margin-bottom: 10px; font-weight: bold; }
-  .timer-display-small { font-family: 'Courier New', monospace; font-size: 28px; font-weight: bold; color: #e74c3c; margin-bottom: 10px; }
+  .timer-display-small { font-family: 'Courier New', monospace; font-size: 28px; font-weight: bold; color: #2ecc71; margin-bottom: 10px; }
   .timer-btns { display: flex; justify-content: center; gap: 10px; }
   .t-btn { padding: 8px 15px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; color: #fff; font-size: 14px; }
   .btn-start { background-color: #27ae60; }
@@ -79,12 +79,12 @@
     <h2>💰 チップ精算</h2>
 
     <div class="timer-control">
-      <div class="timer-control-title">⏱️ ブラインドタイマー (トップページ連動)</div>
-      <div id="controlTimer" class="timer-display-small">15:00</div>
+      <div class="timer-control-title">⏱️ プレイ時間タイマー (トップページ連動)</div>
+      <div id="controlTimer" class="timer-display-small">00:00</div>
       <div class="timer-btns">
         <button class="t-btn btn-start" onclick="timerAction('start')">▶ START</button>
         <button class="t-btn btn-stop" onclick="timerAction('stop')">⏸ STOP</button>
-        <button class="t-btn btn-reset" onclick="timerAction('reset')">🔄 15分リセット</button>
+        <button class="t-btn btn-reset" onclick="timerAction('reset')">🔄 リセット</button>
       </div>
     </div>
 
@@ -121,38 +121,45 @@
 
 <script>
   // -------------------------
-  // タイマー処理
+  // タイマー処理（カウントアップ）
   // -------------------------
-  const DEFAULT_TIME = 15 * 60; // 15分
   let localTimerInterval;
 
   function updateTimerDisplay() {
-    const state = JSON.parse(localStorage.getItem('pokerTimerState')) || { running: false, timeLeft: DEFAULT_TIME, lastUpdate: Date.now() };
-    let currentLeft = state.timeLeft;
+    const state = JSON.parse(localStorage.getItem('pokerTimerState')) || { running: false, elapsedSeconds: 0, lastUpdate: Date.now() };
+    let currentElapsed = state.elapsedSeconds;
     
     if (state.running) {
-      const elapsed = Math.floor((Date.now() - state.lastUpdate) / 1000);
-      currentLeft = Math.max(0, state.timeLeft - elapsed);
+      const elapsedSinceUpdate = Math.floor((Date.now() - state.lastUpdate) / 1000);
+      currentElapsed += elapsedSinceUpdate;
     }
     
-    const m = Math.floor(currentLeft / 60);
-    const s = currentLeft % 60;
-    document.getElementById('controlTimer').innerText = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+    const h = Math.floor(currentElapsed / 3600);
+    const m = Math.floor((currentElapsed % 3600) / 60);
+    const s = currentElapsed % 60;
+    
+    const formattedTime = (h > 0 ? String(h).padStart(2, '0') + ':' : '') + 
+                          String(m).padStart(2, '0') + ':' + 
+                          String(s).padStart(2, '0');
+                          
+    document.getElementById('controlTimer').innerText = formattedTime;
+    return formattedTime; // 保存用に経過時間を返す
   }
 
   function timerAction(action) {
-    let state = JSON.parse(localStorage.getItem('pokerTimerState')) || { running: false, timeLeft: DEFAULT_TIME, lastUpdate: Date.now() };
+    let state = JSON.parse(localStorage.getItem('pokerTimerState')) || { running: false, elapsedSeconds: 0, lastUpdate: Date.now() };
     
-    if (action === 'start' && !state.running && state.timeLeft > 0) {
+    if (action === 'start' && !state.running) {
       state.running = true;
       state.lastUpdate = Date.now();
     } else if (action === 'stop' && state.running) {
       state.running = false;
-      const elapsed = Math.floor((Date.now() - state.lastUpdate) / 1000);
-      state.timeLeft = Math.max(0, state.timeLeft - elapsed);
+      const elapsedSinceUpdate = Math.floor((Date.now() - state.lastUpdate) / 1000);
+      state.elapsedSeconds += elapsedSinceUpdate;
     } else if (action === 'reset') {
       state.running = false;
-      state.timeLeft = DEFAULT_TIME;
+      state.elapsedSeconds = 0;
+      state.lastUpdate = Date.now();
     }
     
     localStorage.setItem('pokerTimerState', JSON.stringify(state));
@@ -164,7 +171,7 @@
 
 
   // -------------------------
-  // 精算処理（これまでと同じ）
+  // 精算処理
   // -------------------------
   const STARTING_CHIPS = 20000;
   const RATE = 10;
@@ -259,6 +266,9 @@
     let playerData = [];
     let hasName = false;
 
+    // ★現在のプレイ時間を取得！
+    const currentPlayTime = updateTimerDisplay();
+
     rows.forEach(row => {
       const name = row.querySelector('.name-input').value.trim();
       if (name !== "") {
@@ -268,7 +278,8 @@
         const result = finalChips - (entry * STARTING_CHIPS);
         const pay = result / RATE;
 
-        playerData.push({ name, entry, finalChips, result, pay });
+        // データに「playTime」をこっそり含めて送信する
+        playerData.push({ name, entry, finalChips, result, pay, playTime: currentPlayTime });
       }
     });
 
@@ -289,11 +300,12 @@
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(playerData)
     }).then(() => {
-      alert("✨ 成績を記録しました！");
+      alert("✨ 成績を記録しました！\n（プレイ時間: " + currentPlayTime + "）");
       btn.innerText = "💾 成績を記録する";
       btn.disabled = false;
-      if(confirm("画面をリセットして次のゲームの準備をしますか？")) {
+      if(confirm("画面とタイマーをリセットして次のゲームの準備をしますか？")) {
         localStorage.removeItem('pokerDraft');
+        timerAction('reset'); // タイマーも0に戻す
         location.reload();
       }
     }).catch(error => {
@@ -305,7 +317,7 @@
 
   window.onload = () => {
     loadDraft();
-    updateTimerDisplay(); // 開いた時にタイマーも初期表示
+    updateTimerDisplay(); 
   };
 </script>
 </body>
