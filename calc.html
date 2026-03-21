@@ -6,58 +6,55 @@
 <title>チップ精算 - KEYpro poker</title>
 <style>
   body, input, button, table, th, td, h2, div { font-family: 'KEYpro', sans-serif; }
-  body { background-color: #1e3d2f; color: #ffffff; padding: 20px; text-align: center; margin: 0; }
-  .container { max-width: 800px; margin: 0 auto; background-color: rgba(0, 0, 0, 0.3); padding: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-  h2 { color: #f1c40f; margin-bottom: 20px; }
+  body { background: radial-gradient(circle at center, #1a5c38 0%, #0a2e1c 100%); color: #ffffff; padding: 20px; text-align: center; margin: 0; min-height: 100vh; }
+  .container { max-width: 800px; margin: 0 auto; background-color: rgba(0, 0, 0, 0.5); padding: 30px 20px; border-radius: 12px; border: 2px solid #d4af37; box-shadow: 0 8px 32px rgba(0,0,0,0.6); }
+  h2 { color: #d4af37; margin-bottom: 20px; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); letter-spacing: 2px; }
   
-  .table-wrapper { width: 100%; margin-bottom: 15px; }
+  .table-wrapper { width: 100%; margin-bottom: 20px; }
   
-  table { margin: 0 auto; border-collapse: collapse; width: 100%; min-width: 550px; background-color: #ffffff; color: #000; border-radius: 5px; overflow: hidden; }
-  th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
-  th { background-color: #2c3e50; color: #ffffff; white-space: nowrap; }
-  input { width: 100%; padding: 5px; box-sizing: border-box; text-align: right; font-size: 16px; border: 1px solid #bdc3c7; border-radius: 4px; }
+  table { margin: 0 auto; border-collapse: collapse; width: 100%; min-width: 550px; background-color: #ffffff; color: #000; border-radius: 8px; overflow: hidden; }
+  th, td { border: 1px solid #ccc; padding: 10px; text-align: center; }
+  th { background-color: #1a252f; color: #d4af37; white-space: nowrap; font-size: 14px; letter-spacing: 1px; }
+  
+  input { width: 100%; padding: 8px; box-sizing: border-box; text-align: right; font-size: 16px; border: 1px solid #bdc3c7; border-radius: 4px; background-color: #f8f9fa; }
+  input:focus { border-color: #d4af37; outline: none; background-color: #fff; }
   input[type="text"].name-input { text-align: left; }
-  .readonly { background-color: #e9ecef; border: none; font-weight: bold; outline: none; }
-  .summary { margin-top: 20px; font-size: 20px; font-weight: bold; color: #ecf0f1; }
-  .match { color: #2ecc71; }
-  .error { color: #e74c3c; }
+  .readonly { background-color: #e9ecef; border: none; font-weight: bold; outline: none; color: #2c3e50; }
   
-  .btn { background-color: #f39c12; color: white; border: none; padding: 10px 20px; font-size: 16px; cursor: pointer; border-radius: 5px; margin-top: 10px; font-weight: bold; }
-  .btn:hover { background-color: #e67e22; }
+  .summary { margin-top: 20px; font-size: 22px; font-weight: bold; color: #d4af37; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; border: 1px solid #d4af37; }
+  .match { color: #2ecc71; text-shadow: 1px 1px 2px #000; }
+  .error { color: #e74c3c; text-shadow: 1px 1px 2px #000; }
   
-  .save-btn { background-color: #e74c3c; font-size: 18px; padding: 15px 30px; margin-top: 30px; width: 80%; display: block; margin-left: auto; margin-right: auto; }
-  .save-btn:hover { background-color: #c0392b; }
-  .save-btn:disabled { background-color: #95a5a6; cursor: not-allowed; }
+  .btn { background: linear-gradient(145deg, #2c3e50, #1a252f); color: white; border: 1px solid #7f8c8d; padding: 12px 24px; font-size: 16px; cursor: pointer; border-radius: 50px; margin-top: 10px; font-weight: bold; transition: all 0.3s; }
+  .btn:hover { background: linear-gradient(145deg, #34495e, #2c3e50); transform: translateY(-2px); }
   
-  .back-btn { background-color: #7f8c8d; margin-top: 30px; }
-  .back-btn:hover { background-color: #95a5a6; }
+  .save-btn { background: linear-gradient(145deg, #b8860b, #8b6508); color: #fff; border: 1px solid #ffd700; font-size: 18px; padding: 15px 30px; margin-top: 30px; width: 80%; display: block; margin-left: auto; margin-right: auto; }
+  .save-btn:hover { background: linear-gradient(145deg, #d4af37, #b8860b); }
+  .save-btn:disabled { background: #95a5a6; border-color: #7f8c8d; cursor: not-allowed; transform: none; }
+  
+  .back-btn { background: transparent; border: 1px solid #ecf0f1; margin-top: 30px; }
+  .back-btn:hover { background: rgba(255,255,255,0.1); }
   .draft-notice { font-size: 12px; color: #bdc3c7; margin-top: 10px; }
 
-  /* 📱 スマホ画面（幅600px以下）の時の「カード型」デザイン */
+  /* 📱 スマホ画面のトランプ風デザイン */
   @media screen and (max-width: 600px) {
     body { padding: 10px; }
-    .container { padding: 15px 10px; }
+    .container { padding: 20px 10px; border-width: 1px; }
     
-    /* 表の枠をなくす */
     table { display: block; min-width: 100%; border: none; background-color: transparent; }
-    /* 「プレイヤー名」「エントリー」などの一番上の見出しを消す */
     thead { display: none; }
     tbody { display: block; width: 100%; }
     
-    /* 1人分の行を「カード」のように独立させる */
-    tr { display: block; background-color: #ffffff; margin-bottom: 15px; border-radius: 8px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+    tr { display: block; background-color: #ffffff; margin-bottom: 20px; border-radius: 12px; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.8); border: 1px solid #ccc; position: relative; }
     
-    /* セル（入力欄）を横並びに配置し、ラベルをつける */
-    td { display: flex; justify-content: space-between; align-items: center; border: none; padding: 8px 0; border-bottom: 1px dashed #ccc; }
-    td:last-child { border-bottom: none; }
+    td { display: flex; justify-content: space-between; align-items: center; border: none; padding: 10px 0; border-bottom: 1px solid #eee; }
+    td:last-child { border-bottom: none; background-color: #f8f9fa; margin: -15px; margin-top: 10px; padding: 15px; border-radius: 0 0 12px 12px; }
     
-    /* JavaScriptで設定した「data-label」を文字として表示する */
-    td::before { content: attr(data-label); font-weight: bold; color: #2c3e50; font-size: 14px; }
+    td::before { content: attr(data-label); font-weight: bold; color: #34495e; font-size: 13px; }
     
-    /* 入力欄の幅とデザイン調整 */
-    input { width: 55%; font-size: 16px; padding: 8px; }
-    input[type="text"].name-input { text-align: right; } /* スマホでは名前も右寄せにして統一感を出す */
-    .save-btn { width: 100%; font-size: 16px; padding: 12px 10px; }
+    input { width: 55%; font-size: 16px; padding: 10px; border-radius: 6px; }
+    input[type="text"].name-input { text-align: right; }
+    .save-btn { width: 100%; font-size: 16px; padding: 15px 10px; }
   }
 </style>
 </head>
@@ -86,14 +83,14 @@
 
     <div class="summary" id="checkResult">
       合計Pay: <span id="totalPay">0</span> 円 <br>
-      (状態: <span id="statusMessage" class="match">OK</span>)
+      <span id="statusMessage" class="match">OK</span>
     </div>
     
     <div class="draft-notice">※入力内容はブラウザに自動保存されています</div>
 
-    <button class="btn save-btn" id="saveBtn" onclick="saveData()">💾 最終結果をスプレッドシートに記録</button>
+    <button class="btn save-btn" id="saveBtn" onclick="saveData()">💾 成績を記録する</button>
 
-    <button class="btn back-btn" onclick="location.href='index.html'">◀ トップページに戻る</button>
+    <button class="btn back-btn" onclick="location.href='index.html'">◀ トップに戻る</button>
   </div>
 
 <script>
@@ -103,9 +100,8 @@
 
   function createRow() {
     const tr = document.createElement('tr');
-    // スマホ表示用に data-label を追加しています
     tr.innerHTML = `
-      <td data-label="👤 プレイヤー名"><input type="text" class="name-input" placeholder="名前" oninput="calculate()"></td>
+      <td data-label="👤 名前"><input type="text" class="name-input" placeholder="名前" oninput="calculate()"></td>
       <td data-label="🎟️ エントリー"><input type="number" class="entry" value="1" min="0" oninput="calculate()"></td>
       <td data-label="🪙 最終持ち点"><input type="number" class="final-chips" value="0" step="100" oninput="calculate()"></td>
       <td data-label="📊 精算後 (点)"><input type="text" class="result readonly" value="-20000" readonly tabindex="-1"></td>
@@ -144,10 +140,10 @@
     const msg = document.getElementById('statusMessage');
     
     if (totalPaySum === 0) {
-      msg.innerText = "ピッタリ合っています！";
+      msg.innerText = "✨ ピッタリ合っています！ ✨";
       msg.className = "match";
     } else {
-      msg.innerText = `エラー: ${totalPaySum > 0 ? '+' : ''}${totalPaySum} 円ズレています`;
+      msg.innerText = `⚠️ エラー: ${totalPaySum > 0 ? '+' : ''}${totalPaySum} 円ズレています`;
       msg.className = "error";
     }
 
@@ -216,8 +212,8 @@
       body: JSON.stringify(playerData)
     })
     .then(() => {
-      alert("✨ スプレッドシートに成績を記録しました！");
-      btn.innerText = "💾 最終結果をスプレッドシートに記録";
+      alert("✨ 成績を記録しました！");
+      btn.innerText = "💾 成績を記録する";
       btn.disabled = false;
       
       if(confirm("画面をリセットして次のゲームの準備をしますか？")) {
@@ -227,7 +223,7 @@
     })
     .catch(error => {
       alert("通信エラーが発生しました。");
-      btn.innerText = "💾 最終結果をスプレッドシートに記録";
+      btn.innerText = "💾 成績を記録する";
       btn.disabled = false;
     });
   }
