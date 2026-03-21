@@ -22,7 +22,7 @@
 
   .table-wrapper { width: 100%; margin-bottom: 20px; }
   
-  table { margin: 0 auto; border-collapse: collapse; width: 100%; min-width: 550px; background-color: #ffffff; color: #000; border-radius: 8px; overflow: hidden; }
+  table { margin: 0 auto; border-collapse: collapse; width: 100%; min-width: 600px; background-color: #ffffff; color: #000; border-radius: 8px; overflow: hidden; }
   th, td { border: 1px solid #ccc; padding: 10px; text-align: center; }
   th { background-color: #1a252f; color: #d4af37; white-space: nowrap; font-size: 14px; letter-spacing: 1px; }
   
@@ -31,6 +31,10 @@
   input[type="text"].name-input { text-align: left; }
   .readonly { background-color: #e9ecef; border: none; font-weight: bold; outline: none; color: #2c3e50; }
   
+  /* 削除ボタン */
+  .del-btn { background-color: #e74c3c; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; transition: background 0.3s; white-space: nowrap; }
+  .del-btn:hover { background-color: #c0392b; }
+
   .summary { margin-top: 20px; font-size: 22px; font-weight: bold; color: #d4af37; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; border: 1px solid #d4af37; }
   .match { color: #2ecc71; text-shadow: 1px 1px 2px #000; }
   .error { color: #e74c3c; text-shadow: 1px 1px 2px #000; }
@@ -55,11 +59,18 @@
     thead { display: none; }
     tbody { display: block; width: 100%; }
     
-    tr { display: block; background-color: #ffffff; margin-bottom: 20px; border-radius: 12px; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.8); border: 1px solid #ccc; position: relative; }
+    tr { display: block; background-color: #ffffff; margin-bottom: 25px; border-radius: 12px; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.8); border: 1px solid #ccc; position: relative; }
     
     td { display: flex; justify-content: space-between; align-items: center; border: none; padding: 10px 0; border-bottom: 1px solid #eee; }
-    td:last-child { border-bottom: none; background-color: #f8f9fa; margin: -15px; margin-top: 10px; padding: 15px; border-radius: 0 0 12px 12px; }
     
+    /* 5番目(Pay)の要素をカードのフッター風に */
+    td:nth-child(5) { border-bottom: none; background-color: #f8f9fa; margin: -15px; margin-top: 10px; padding: 15px; border-radius: 0 0 12px 12px; }
+    
+    /* 6番目(削除ボタン)の要素をカードの右上に絶対配置 */
+    td:last-child { position: absolute; top: -10px; right: -5px; border: none; padding: 0; background: transparent; display: block; z-index: 10; }
+    td:last-child::before { display: none; } /* ラベルを消す */
+    .del-btn { padding: 6px 10px; font-size: 12px; border-radius: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+
     td::before { content: attr(data-label); font-weight: bold; color: #34495e; font-size: 13px; }
     
     input { width: 55%; font-size: 16px; padding: 10px; border-radius: 6px; }
@@ -89,6 +100,7 @@
             <th>最終持ち点</th>
             <th>精算後 (点)</th>
             <th>Pay (円)</th>
+            <th>操作</th>
           </tr>
         </thead>
         <tbody id="tableBody">
@@ -115,7 +127,6 @@
   const RATE = 10;
   const INITIAL_ROWS = 5;
 
-  // 数字を「K（キロ）」表記に省略する関数 (例: 20000 -> 20K, 1500 -> 1.5K)
   function formatK(num) {
     if (num === 0) return "0";
     if (Math.abs(num) >= 1000) {
@@ -132,6 +143,7 @@
       <td data-label="🪙 最終持ち点"><input type="number" class="final-chips" value="0" step="100" oninput="calculate()"></td>
       <td data-label="📊 精算後 (点)"><input type="text" class="result readonly" value="-20K" readonly tabindex="-1"></td>
       <td data-label="💴 Pay (円)"><input type="text" class="pay readonly" value="-2K" readonly tabindex="-1"></td>
+      <td data-label="🗑️ 操作"><button class="del-btn" onclick="removeRow(this)">✖ 削除</button></td>
     `;
     return tr;
   }
@@ -139,6 +151,13 @@
   function addRow() {
     document.getElementById('tableBody').appendChild(createRow());
     calculate();
+  }
+
+  // ★ 新規追加：行を削除する関数
+  function removeRow(btn) {
+    const row = btn.closest('tr');
+    row.remove();
+    calculate(); // 削除後に再計算させる
   }
 
   function calculate() {
@@ -156,14 +175,12 @@
       const result = finalChips - (entry * STARTING_CHIPS);
       const pay = result / RATE;
 
-      // 画面上はK表記にする
       row.querySelector('.result').value = formatK(result);
       row.querySelector('.pay').value = formatK(pay);
 
       totalPaySum += pay;
       draftData.push({ name: row.querySelector('.name-input').value, entry, finalChips });
 
-      // 名前が入力されていればLiveボードに追加
       if (name !== "") {
         activePlayers++;
         let payClass = pay > 0 ? "plus" : (pay < 0 ? "minus" : "");
@@ -172,13 +189,11 @@
       }
     });
 
-    // Liveボードの更新
     if (activePlayers === 0) {
       liveBoardHTML = '<div class="empty-msg">プレイヤー名を入力するとここに速報が出ます</div>';
     }
     document.getElementById('liveBoardContent').innerHTML = liveBoardHTML;
 
-    // 合計表示の更新
     document.getElementById('totalPay').innerText = formatK(totalPaySum);
     const msg = document.getElementById('statusMessage');
     
@@ -225,7 +240,6 @@
       if (name !== "") {
         hasName = true;
         
-        // 保存する時は「K」表記の文字ではなく、純粋な数字を再計算して送る
         const entry = parseFloat(row.querySelector('.entry').value) || 0;
         const finalChips = parseFloat(row.querySelector('.final-chips').value) || 0;
         const result = finalChips - (entry * STARTING_CHIPS);
@@ -246,7 +260,6 @@
       return;
     }
 
-    // エラーチェック（表示されているKを数値に戻して判定する代わり、内部で再計算）
     let checkTotal = 0;
     playerData.forEach(p => checkTotal += p.pay);
     if (checkTotal !== 0) {
