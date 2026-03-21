@@ -7,8 +7,8 @@
 <style>
   body, button, h1, p, div { font-family: 'KEYpro', sans-serif; }
   /* カジノテーブル風の背景グラデーション */
-  body { background: radial-gradient(circle at center, #1a5c38 0%, #0a2e1c 100%); color: #ffffff; text-align: center; padding: 40px 20px; margin: 0; min-height: 100vh; }
-  .container { max-width: 600px; margin: 0 auto; background-color: rgba(0, 0, 0, 0.4); padding: 40px 30px; border-radius: 12px; border: 2px solid #d4af37; box-shadow: 0 8px 32px rgba(0,0,0,0.6); position: relative; }
+  body { background: radial-gradient(circle at center, #1a5c38 0%, #0a2e1c 100%); color: #ffffff; text-align: center; padding: 40px 20px; margin: 0; min-height: 100vh; position: relative; }
+  .container { max-width: 600px; margin: 0 auto; background-color: rgba(0, 0, 0, 0.4); padding: 50px 30px; border-radius: 12px; border: 2px solid #d4af37; box-shadow: 0 8px 32px rgba(0,0,0,0.6); position: relative; }
   
   /* スートの装飾 */
   .suits { font-size: 24px; letter-spacing: 10px; margin-bottom: 10px; }
@@ -16,22 +16,39 @@
   .suit-black { color: #ffffff; }
   
   h1 { color: #d4af37; font-size: 36px; margin: 0 0 10px 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); letter-spacing: 2px; }
-  p { font-size: 16px; margin-bottom: 40px; color: #ecf0f1; letter-spacing: 1px; }
+  p { font-size: 16px; margin-bottom: 50px; color: #ecf0f1; letter-spacing: 1px; }
   
-  /* カジノチップ風のボタン */
-  .menu-btn { display: block; width: 80%; margin: 0 auto 20px auto; padding: 18px; background: linear-gradient(145deg, #b8860b, #8b6508); color: #ffffff; font-size: 20px; font-weight: bold; text-decoration: none; border: 1px solid #ffd700; border-radius: 50px; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.5); }
-  .menu-btn:hover { background: linear-gradient(145deg, #d4af37, #b8860b); transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.6); }
+  /* メインのランキングボタン（これだけを目立たせる） */
+  .menu-btn.ranking { display: block; width: 80%; margin: 0 auto; padding: 20px; background: linear-gradient(145deg, #2c3e50, #1a252f); color: #ffffff; font-size: 22px; font-weight: bold; text-decoration: none; border: 1px solid #7f8c8d; border-radius: 50px; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.5); }
+  .menu-btn.ranking:hover { background: linear-gradient(145deg, #34495e, #2c3e50); transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.6); }
   
-  .menu-btn.ranking { background: linear-gradient(145deg, #2c3e50, #1a252f); border: 1px solid #7f8c8d; }
-  .menu-btn.ranking:hover { background: linear-gradient(145deg, #34495e, #2c3e50); }
-  
-  .footer-text { margin-top: 40px; font-size: 12px; color: #7f8c8d; }
+  .footer-text { margin-top: 50px; font-size: 12px; color: #7f8c8d; }
+
+  /* 左下の小さくて目立たないチップ精算ボタン（裏メニュー） */
+  .secret-btn {
+    position: fixed;
+    bottom: 15px;
+    left: 15px;
+    background: transparent;
+    color: #7f8c8d;
+    border: none;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 10px;
+    transition: color 0.3s;
+    text-align: left;
+    outline: none;
+  }
+  .secret-btn:hover {
+    color: #d4af37;
+  }
 
   @media screen and (max-width: 600px) {
     body { padding: 20px 10px; }
-    .container { padding: 30px 15px; }
+    .container { padding: 40px 15px; }
     h1 { font-size: 30px; }
-    .menu-btn { width: 95%; font-size: 18px; padding: 15px; }
+    .menu-btn.ranking { width: 95%; font-size: 20px; padding: 18px; }
+    .secret-btn { bottom: 10px; left: 10px; font-size: 12px; padding: 5px; }
   }
 </style>
 </head>
@@ -41,12 +58,28 @@
       <span class="suit-black">♠</span><span class="suit-red">♥</span><span class="suit-black">♣</span><span class="suit-red">♦</span>
     </div>
     <h1>KEYpro poker</h1>
-    <p>チップ精算・ランキング管理</p>
+    <p>公式ランキング</p>
     
-    <button class="menu-btn" onclick="location.href='calc.html'">💰 チップ精算</button>
-    <button class="menu-btn ranking" onclick="location.href='ranking.html'">👑 ランキング</button>
+    <button class="menu-btn ranking" onclick="location.href='ranking.html'">👑 ランキングを見る</button>
     
     <div class="footer-text">© 2026 KEYpro poker</div>
   </div>
+
+  <button class="secret-btn" onclick="checkPassword()">⚙️ 精算</button>
+
+  <script>
+    function checkPassword() {
+      // パスワード入力画面を表示
+      const pass = prompt("管理者パスワードを入力してください:");
+      
+      // パスワードが合っていれば精算ページへ移動
+      if (pass === "keypro5424") {
+        location.href = 'calc.html';
+      } else if (pass !== null) {
+        // キャンセルを押した時は無視し、間違えた時だけエラーを出す
+        alert("パスワードが違います。");
+      }
+    }
+  </script>
 </body>
 </html>
