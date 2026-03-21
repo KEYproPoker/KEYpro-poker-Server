@@ -6,11 +6,9 @@
 <title>ポーカー管理 - KEYpro poker</title>
 <style>
   body, button, h1, p, div { font-family: 'KEYpro', sans-serif; }
-  /* カジノテーブル風の背景グラデーション */
   body { background: radial-gradient(circle at center, #1a5c38 0%, #0a2e1c 100%); color: #ffffff; text-align: center; padding: 30px 20px; margin: 0; min-height: 100vh; position: relative; }
   .container { max-width: 600px; margin: 0 auto; background-color: rgba(0, 0, 0, 0.5); padding: 40px 30px; border-radius: 12px; border: 2px solid #d4af37; box-shadow: 0 8px 32px rgba(0,0,0,0.6); position: relative; }
   
-  /* スートの装飾 */
   .suits { font-size: 24px; letter-spacing: 10px; margin-bottom: 5px; }
   .suit-red { color: #e74c3c; }
   .suit-black { color: #ffffff; }
@@ -18,9 +16,12 @@
   h1 { color: #d4af37; font-size: 34px; margin: 0 0 5px 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); letter-spacing: 2px; }
   p { font-size: 15px; margin-bottom: 30px; color: #ecf0f1; letter-spacing: 1px; }
   
-  /* 本日のLiveダッシュボード */
   .live-dashboard { background: rgba(0, 0, 0, 0.6); border: 1px solid #d4af37; border-radius: 8px; padding: 20px 15px; margin-bottom: 30px; }
-  .date-header { font-size: 18px; font-weight: bold; color: #fff; margin-bottom: 10px; border-bottom: 1px dashed #7f8c8d; padding-bottom: 10px; }
+  .date-header { font-size: 18px; font-weight: bold; color: #fff; margin-bottom: 15px; border-bottom: 1px dashed #7f8c8d; padding-bottom: 10px; }
+  
+  /* タイマーのデザイン */
+  .timer-display { background: #000; color: #e74c3c; font-family: 'Courier New', monospace; font-size: 48px; font-weight: bold; padding: 10px 20px; border-radius: 8px; border: 2px solid #333; margin-bottom: 20px; text-shadow: 0 0 10px rgba(231,76,60,0.5); display: inline-block; }
+  
   .board-title { color: #f1c40f; font-size: 14px; margin-bottom: 15px; letter-spacing: 1px; }
   .live-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
   .player-badge { background: linear-gradient(145deg, #1a252f, #2c3e50); border: 1px solid #7f8c8d; padding: 8px 15px; border-radius: 6px; font-size: 15px; display: flex; align-items: center; gap: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.5); }
@@ -28,36 +29,19 @@
   .player-badge .badge-entry { color: #e74c3c; font-weight: bold; background: #fff; padding: 2px 6px; border-radius: 4px; font-size: 12px; }
   .empty-text { color: #95a5a6; font-size: 14px; width: 100%; }
 
-  /* メインのランキングボタン */
   .menu-btn.ranking { display: block; width: 80%; margin: 0 auto; padding: 20px; background: linear-gradient(145deg, #2c3e50, #1a252f); color: #ffffff; font-size: 22px; font-weight: bold; text-decoration: none; border: 1px solid #7f8c8d; border-radius: 50px; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.5); }
   .menu-btn.ranking:hover { background: linear-gradient(145deg, #34495e, #2c3e50); transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.6); }
   
   .footer-text { margin-top: 40px; font-size: 12px; color: #7f8c8d; }
 
-  /* 左下の小さくて目立たないチップ精算ボタン（裏メニュー） */
-  .secret-btn {
-    position: fixed;
-    bottom: 15px;
-    left: 15px;
-    background: transparent;
-    color: #7f8c8d;
-    border: none;
-    font-size: 14px;
-    cursor: pointer;
-    padding: 10px;
-    transition: color 0.3s;
-    text-align: left;
-    outline: none;
-    z-index: 100;
-  }
-  .secret-btn:hover {
-    color: #d4af37;
-  }
+  .secret-btn { position: fixed; bottom: 15px; left: 15px; background: transparent; color: #7f8c8d; border: none; font-size: 14px; cursor: pointer; padding: 10px; transition: color 0.3s; text-align: left; outline: none; z-index: 100; }
+  .secret-btn:hover { color: #d4af37; }
 
   @media screen and (max-width: 600px) {
     body { padding: 15px 10px; }
     .container { padding: 30px 15px; }
     h1 { font-size: 28px; }
+    .timer-display { font-size: 36px; }
     .menu-btn.ranking { width: 95%; font-size: 18px; padding: 18px; }
     .secret-btn { bottom: 10px; left: 10px; font-size: 12px; padding: 5px; }
   }
@@ -73,6 +57,9 @@
     
     <div class="live-dashboard">
       <div class="date-header" id="todayDate">----年--月--日</div>
+      
+      <div class="timer-display" id="mainTimer">15:00</div>
+      
       <div class="board-title">♠️ プレイ中のゲーム状況 ♥️</div>
       <div id="topLiveBoard" class="live-grid">
         <div class="empty-text">現在プレイ中のゲームはありません</div>
@@ -80,14 +67,12 @@
     </div>
 
     <button class="menu-btn ranking" onclick="location.href='ranking.html'">👑 総合ランキングを見る</button>
-    
     <div class="footer-text">© 2026 KEYpro poker</div>
   </div>
 
   <button class="secret-btn" onclick="checkPassword()">⚙️ 精算</button>
 
   <script>
-    // パスワードチェック機能
     function checkPassword() {
       const pass = prompt("管理者パスワードを入力してください:");
       if (pass === "keypro5424") {
@@ -97,14 +82,31 @@
       }
     }
 
-    // 画面が開かれた時に日付とLive状況を読み込む
+    // タイマーの同期機能
+    setInterval(() => {
+      // calc.html から保存されたタイマーの状態を読み取る
+      const timerState = JSON.parse(localStorage.getItem('pokerTimerState')) || { running: false, timeLeft: 900, lastUpdate: Date.now() };
+      
+      let currentLeft = timerState.timeLeft;
+      
+      // 動いている場合、前回の更新から現在までの経過時間を引く
+      if (timerState.running) {
+        const elapsed = Math.floor((Date.now() - timerState.lastUpdate) / 1000);
+        currentLeft = Math.max(0, timerState.timeLeft - elapsed);
+      }
+
+      // 表示の更新 (MM:SS)
+      const minutes = Math.floor(currentLeft / 60);
+      const seconds = currentLeft % 60;
+      document.getElementById('mainTimer').innerText = 
+        String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+    }, 1000);
+
     window.onload = () => {
-      // 日付の表示
       const now = new Date();
       const dateStr = now.getFullYear() + "年" + (now.getMonth() + 1) + "月" + now.getDate() + "日";
       document.getElementById('todayDate').innerText = dateStr;
 
-      // ローカルストレージから現在入力中（精算画面）のデータを取得
       const draft = localStorage.getItem('pokerDraft');
       const board = document.getElementById('topLiveBoard');
       
@@ -114,7 +116,6 @@
         let count = 0;
         
         draftData.forEach(player => {
-          // 名前が入力されていて、エントリー数が1以上の人を表示
           if (player.name && player.name.trim() !== "" && player.entry > 0) {
             html += `
               <div class="player-badge">
