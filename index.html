@@ -19,7 +19,6 @@
   .live-dashboard { background: rgba(0, 0, 0, 0.6); border: 1px solid #d4af37; border-radius: 8px; padding: 20px 15px; margin-bottom: 30px; }
   .date-header { font-size: 18px; font-weight: bold; color: #fff; margin-bottom: 15px; border-bottom: 1px dashed #7f8c8d; padding-bottom: 10px; }
   
-  /* プレイ時間タイマーのデザイン */
   .timer-label { font-size: 14px; color: #bdc3c7; margin-bottom: 5px; letter-spacing: 1px; }
   .timer-display { background: #000; color: #2ecc71; font-family: 'Courier New', monospace; font-size: 48px; font-weight: bold; padding: 10px 20px; border-radius: 8px; border: 2px solid #333; margin-bottom: 20px; text-shadow: 0 0 10px rgba(46,204,113,0.5); display: inline-block; }
   
@@ -69,72 +68,89 @@
     </div>
 
     <button class="menu-btn ranking" onclick="location.href='ranking.html'">👑 総合ランキングを見る</button>
-    <div class="footer-text">© 2026 KEYpro poker</div>
+    <div class="footer-text">© 2026 KEYpro poker Server</div>
   </div>
 
   <button class="secret-btn" onclick="checkPassword()">⚙️ 精算</button>
 
-  <script>
-    function checkPassword() {
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+
+    // あなたのFirebaseの鍵
+    const firebaseConfig = {
+      apiKey: "AIzaSyDWO4bFy5lAHALlnKr32b9TTTXNcNQuIqU",
+      authDomain: "keypro-poker-server.firebaseapp.com",
+      projectId: "keypro-poker-server",
+      storageBucket: "keypro-poker-server.firebasestorage.app",
+      messagingSenderId: "953048452758",
+      appId: "1:953048452758:web:16aa168ae600cc97e67cb7",
+      measurementId: "G-3HVG0EP54D"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // タイマーのローカル同期用変数
+    let currentTimerState = { running: false, elapsedSeconds: 0, lastUpdate: Date.now() };
+
+    // Firebaseからタイマー情報を受信
+    onValue(ref(db, 'pokerSession/timer'), (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        currentTimerState = data;
+      }
+    });
+
+    // Firebaseから参加者情報を受信
+    onValue(ref(db, 'pokerSession/players'), (snapshot) => {
+      const draftData = snapshot.val() || [];
+      const board = document.getElementById('topLiveBoard');
+      let html = "";
+      let count = 0;
+      
+      draftData.forEach(player => {
+        if (player.name && player.name.trim() !== "" && player.entry > 0) {
+          html += `
+            <div class="player-badge">
+              <span class="badge-name">${player.name}</span>
+              <span class="badge-entry">${player.entry} Entry</span>
+            </div>
+          `;
+          count++;
+        }
+      });
+      board.innerHTML = count > 0 ? html : '<div class="empty-text">現在プレイ中のゲームはありません</div>';
+    });
+
+    // 画面にタイマーを描画するループ
+    setInterval(() => {
+      let currentElapsed = currentTimerState.elapsedSeconds;
+      if (currentTimerState.running) {
+        const elapsedSinceUpdate = Math.floor((Date.now() - currentTimerState.lastUpdate) / 1000);
+        currentElapsed += elapsedSinceUpdate;
+      }
+
+      const h = Math.floor(currentElapsed / 3600);
+      const m = Math.floor((currentElapsed % 3600) / 60);
+      const s = currentElapsed % 60;
+      const formattedTime = (h > 0 ? String(h).padStart(2, '0') + ':' : '') + 
+                            String(m).padStart(2, '0') + ':' + 
+                            String(s).padStart(2, '0');
+      document.getElementById('mainTimer').innerText = formattedTime;
+    }, 1000);
+
+    // 日付設定
+    const now = new Date();
+    document.getElementById('todayDate').innerText = now.getFullYear() + "年" + (now.getMonth() + 1) + "月" + now.getDate() + "日";
+
+    // HTMLのonclickで呼べるようにグローバルに登録
+    window.checkPassword = function() {
       const pass = prompt("管理者パスワードを入力してください:");
       if (pass === "keypro5424") {
         location.href = 'calc.html';
       } else if (pass !== null) {
         alert("パスワードが違います。");
-      }
-    }
-
-    // カウントアップタイマーの同期機能
-    setInterval(() => {
-      const timerState = JSON.parse(localStorage.getItem('pokerTimerState')) || { running: false, elapsedSeconds: 0, lastUpdate: Date.now() };
-      
-      let currentElapsed = timerState.elapsedSeconds;
-      
-      if (timerState.running) {
-        const elapsedSinceUpdate = Math.floor((Date.now() - timerState.lastUpdate) / 1000);
-        currentElapsed += elapsedSinceUpdate;
-      }
-
-      // 何時間経過したかの計算 (1時間を超えたらHH:MM:SSで表示)
-      const h = Math.floor(currentElapsed / 3600);
-      const m = Math.floor((currentElapsed % 3600) / 60);
-      const s = currentElapsed % 60;
-      
-      const formattedTime = (h > 0 ? String(h).padStart(2, '0') + ':' : '') + 
-                            String(m).padStart(2, '0') + ':' + 
-                            String(s).padStart(2, '0');
-                            
-      document.getElementById('mainTimer').innerText = formattedTime;
-    }, 1000);
-
-    window.onload = () => {
-      const now = new Date();
-      const dateStr = now.getFullYear() + "年" + (now.getMonth() + 1) + "月" + now.getDate() + "日";
-      document.getElementById('todayDate').innerText = dateStr;
-
-      const draft = localStorage.getItem('pokerDraft');
-      const board = document.getElementById('topLiveBoard');
-      
-      if (draft) {
-        const draftData = JSON.parse(draft);
-        let html = "";
-        let count = 0;
-        
-        draftData.forEach(player => {
-          if (player.name && player.name.trim() !== "" && player.entry > 0) {
-            html += `
-              <div class="player-badge">
-                <span class="badge-name">${player.name}</span>
-                <span class="badge-entry">${player.entry} Entry</span>
-              </div>
-            `;
-            count++;
-          }
-        });
-        
-        if (count > 0) {
-          board.innerHTML = html;
-        }
       }
     };
   </script>
