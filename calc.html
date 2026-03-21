@@ -10,14 +10,13 @@
   .container { max-width: 800px; margin: 0 auto; background-color: rgba(0, 0, 0, 0.3); padding: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
   h2 { color: #f1c40f; margin-bottom: 20px; }
   
-  /* スマホ用の横スクロール枠の設定 */
-  .table-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 15px; }
+  .table-wrapper { width: 100%; margin-bottom: 15px; }
   
   table { margin: 0 auto; border-collapse: collapse; width: 100%; min-width: 550px; background-color: #ffffff; color: #000; border-radius: 5px; overflow: hidden; }
   th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
   th { background-color: #2c3e50; color: #ffffff; white-space: nowrap; }
-  input { width: 100%; padding: 5px; box-sizing: border-box; text-align: right; font-size: 16px; }
-  input[type="text"].name-input { text-align: left; min-width: 80px; }
+  input { width: 100%; padding: 5px; box-sizing: border-box; text-align: right; font-size: 16px; border: 1px solid #bdc3c7; border-radius: 4px; }
+  input[type="text"].name-input { text-align: left; }
   .readonly { background-color: #e9ecef; border: none; font-weight: bold; outline: none; }
   .summary { margin-top: 20px; font-size: 20px; font-weight: bold; color: #ecf0f1; }
   .match { color: #2ecc71; }
@@ -34,12 +33,30 @@
   .back-btn:hover { background-color: #95a5a6; }
   .draft-notice { font-size: 12px; color: #bdc3c7; margin-top: 10px; }
 
-  /* スマホ画面（幅600px以下）の時の微調整 */
+  /* 📱 スマホ画面（幅600px以下）の時の「カード型」デザイン */
   @media screen and (max-width: 600px) {
     body { padding: 10px; }
     .container { padding: 15px 10px; }
-    th, td { padding: 6px 4px; font-size: 14px; }
-    input { font-size: 14px; padding: 4px; }
+    
+    /* 表の枠をなくす */
+    table { display: block; min-width: 100%; border: none; background-color: transparent; }
+    /* 「プレイヤー名」「エントリー」などの一番上の見出しを消す */
+    thead { display: none; }
+    tbody { display: block; width: 100%; }
+    
+    /* 1人分の行を「カード」のように独立させる */
+    tr { display: block; background-color: #ffffff; margin-bottom: 15px; border-radius: 8px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+    
+    /* セル（入力欄）を横並びに配置し、ラベルをつける */
+    td { display: flex; justify-content: space-between; align-items: center; border: none; padding: 8px 0; border-bottom: 1px dashed #ccc; }
+    td:last-child { border-bottom: none; }
+    
+    /* JavaScriptで設定した「data-label」を文字として表示する */
+    td::before { content: attr(data-label); font-weight: bold; color: #2c3e50; font-size: 14px; }
+    
+    /* 入力欄の幅とデザイン調整 */
+    input { width: 55%; font-size: 16px; padding: 8px; }
+    input[type="text"].name-input { text-align: right; } /* スマホでは名前も右寄せにして統一感を出す */
     .save-btn { width: 100%; font-size: 16px; padding: 12px 10px; }
   }
 </style>
@@ -86,12 +103,13 @@
 
   function createRow() {
     const tr = document.createElement('tr');
+    // スマホ表示用に data-label を追加しています
     tr.innerHTML = `
-      <td><input type="text" class="name-input" placeholder="名前" oninput="calculate()"></td>
-      <td><input type="number" class="entry" value="1" min="0" oninput="calculate()"></td>
-      <td><input type="number" class="final-chips" value="0" step="100" oninput="calculate()"></td>
-      <td><input type="text" class="result readonly" value="-20000" readonly tabindex="-1"></td>
-      <td><input type="text" class="pay readonly" value="-2000" readonly tabindex="-1"></td>
+      <td data-label="👤 プレイヤー名"><input type="text" class="name-input" placeholder="名前" oninput="calculate()"></td>
+      <td data-label="🎟️ エントリー"><input type="number" class="entry" value="1" min="0" oninput="calculate()"></td>
+      <td data-label="🪙 最終持ち点"><input type="number" class="final-chips" value="0" step="100" oninput="calculate()"></td>
+      <td data-label="📊 精算後 (点)"><input type="text" class="result readonly" value="-20000" readonly tabindex="-1"></td>
+      <td data-label="💴 Pay (円)"><input type="text" class="pay readonly" value="-2000" readonly tabindex="-1"></td>
     `;
     return tr;
   }
@@ -140,82 +158,4 @@
     const draft = localStorage.getItem('pokerDraft');
     const tableBody = document.getElementById('tableBody');
     
-    if (draft) {
-      const draftData = JSON.parse(draft);
-      draftData.forEach(data => {
-        const tr = createRow();
-        tr.querySelector('.name-input').value = data.name;
-        tr.querySelector('.entry').value = data.entry;
-        tr.querySelector('.final-chips').value = data.finalChips;
-        tableBody.appendChild(tr);
-      });
-      calculate(); 
-    } else {
-      for (let i = 0; i < INITIAL_ROWS; i++) tableBody.appendChild(createRow());
-      calculate();
-    }
-  }
-
-  function saveData() {
-    // ご指定いただいたURLを最初から組み込んでいます！
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbxijPOgmKGDL-UL5eAqOBKrxKVfPl4v6hsdLcWbiuwMrCWSPI5fqxu3qOmXIFTrMYCi5A/exec";
-
-    const rows = document.querySelectorAll('#tableBody tr');
-    let playerData = [];
-    let hasName = false;
-
-    rows.forEach(row => {
-      const name = row.querySelector('.name-input').value.trim();
-      if (name !== "") {
-        hasName = true;
-        playerData.push({
-          name: name,
-          entry: parseFloat(row.querySelector('.entry').value) || 0,
-          finalChips: parseFloat(row.querySelector('.final-chips').value) || 0,
-          result: parseFloat(row.querySelector('.result').value) || 0,
-          pay: parseFloat(row.querySelector('.pay').value) || 0
-        });
-      }
-    });
-
-    if (!hasName) {
-      alert("プレイヤー名を入力してください！");
-      return;
-    }
-
-    const totalPay = parseFloat(document.getElementById('totalPay').innerText);
-    if (totalPay !== 0) {
-      if (!confirm("合計Payが0円ではありません！\n本当にこのまま保存してもよろしいですか？")) return;
-    }
-
-    const btn = document.getElementById('saveBtn');
-    btn.innerText = "⏳ 通信中...";
-    btn.disabled = true;
-
-    fetch(GAS_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(playerData)
-    })
-    .then(() => {
-      alert("✨ スプレッドシートに成績を記録しました！");
-      btn.innerText = "💾 最終結果をスプレッドシートに記録";
-      btn.disabled = false;
-      
-      if(confirm("画面をリセットして次のゲームの準備をしますか？")) {
-        localStorage.removeItem('pokerDraft');
-        location.reload();
-      }
-    })
-    .catch(error => {
-      alert("通信エラーが発生しました。");
-      btn.innerText = "💾 最終結果をスプレッドシートに記録";
-      btn.disabled = false;
-    });
-  }
-
-  window.onload = loadDraft;
-</script>
-</body>
-</html>
+    if
