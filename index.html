@@ -15,22 +15,22 @@
   .left-col { flex: 1; padding: 40px; display: flex; flex-direction: column; justify-content: center; align-items: center; border-right: 1px solid rgba(127, 140, 141, 0.3); background: rgba(0,0,0,0.4); position: relative; }
   .right-col { flex: 1.5; padding: 40px; display: flex; flex-direction: column; overflow: hidden; background: rgba(10, 15, 20, 0.6); }
 
-  .suits { font-size: 28px; letter-spacing: 12px; margin-bottom: 10px; opacity: 0.9; }
+  /* ★ PC画面でも文字間隔のズレを相殺して完全なセンターにする修正 */
+  .suits { font-size: 28px; letter-spacing: 12px; margin-bottom: 10px; opacity: 0.9; margin-right: -12px; }
   .suit-red { color: #ff4757; }
   .suit-black { color: #ffffff; }
   
-  h1 { color: #d4af37; font-size: 42px; margin: 0 0 10px 0; text-shadow: 0 0 15px rgba(212, 175, 55, 0.4); letter-spacing: 4px; }
-  p.subtitle { font-size: 14px; margin-bottom: 40px; color: #7f8fa6; letter-spacing: 3px; text-transform: uppercase; }
+  h1 { color: #d4af37; font-size: 42px; margin: 0 -4px 10px 0; text-shadow: 0 0 15px rgba(212, 175, 55, 0.4); letter-spacing: 4px; }
+  p.subtitle { font-size: 14px; margin-bottom: 40px; margin-right: -3px; color: #7f8fa6; letter-spacing: 3px; text-transform: uppercase; }
   
-  .date-header { font-size: 18px; font-weight: bold; color: #dcdde1; margin-bottom: 20px; background: rgba(255,255,255,0.05); padding: 10px 30px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); letter-spacing: 2px; }
+  .date-header { font-size: 18px; font-weight: bold; color: #dcdde1; margin-bottom: 20px; background: rgba(255,255,255,0.05); padding: 10px 30px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); letter-spacing: 2px; margin-right: -2px; }
   
-  .timer-label { font-size: 16px; color: #7f8fa6; margin-bottom: 10px; letter-spacing: 3px; text-transform: uppercase; }
-  .timer-display { background: #000; color: #2ed573; font-family: 'Courier New', monospace; font-size: 76px; font-weight: bold; padding: 15px 30px; border-radius: 8px; border: 1px solid #2f3542; margin-bottom: 40px; text-shadow: 0 0 25px rgba(46, 213, 115, 0.5); box-shadow: inset 0 0 30px rgba(0,0,0,1); letter-spacing: 2px; }
+  .timer-label { font-size: 16px; color: #7f8fa6; margin-bottom: 10px; letter-spacing: 3px; text-transform: uppercase; margin-right: -3px; }
+  .timer-display { background: #000; color: #2ed573; font-family: 'Courier New', monospace; font-size: 76px; font-weight: bold; padding: 15px 30px; border-radius: 8px; border: 1px solid #2f3542; margin-bottom: 40px; text-shadow: 0 0 25px rgba(46, 213, 115, 0.5); box-shadow: inset 0 0 30px rgba(0,0,0,1); letter-spacing: 2px; margin-right: -2px; }
   
   .menu-btn.ranking { display: block; width: 90%; max-width: 350px; padding: 20px; background: rgba(255,255,255,0.03); color: #d4af37; font-size: 18px; font-weight: bold; text-decoration: none; border: 1px solid #d4af37; border-radius: 4px; cursor: pointer; transition: all 0.3s; letter-spacing: 2px; text-transform: uppercase; }
   .menu-btn.ranking:hover { background: #d4af37; color: #000; box-shadow: 0 0 20px rgba(212, 175, 55, 0.4); }
   
-  /* スタイリッシュな英語タイトル */
   .board-title { color: #ff4757; font-size: 24px; margin-bottom: 25px; letter-spacing: 4px; font-weight: bold; text-align: left; border-bottom: 1px solid rgba(255, 71, 87, 0.3); padding-bottom: 15px; text-transform: uppercase; display: flex; align-items: center; gap: 10px; }
   .board-title::before { content: ''; display: inline-block; width: 8px; height: 24px; background-color: #ff4757; box-shadow: 0 0 10px #ff4757; }
   
@@ -39,21 +39,17 @@
   .live-ranking-list::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
   .live-ranking-list::-webkit-scrollbar-thumb { background: #57606f; }
 
-  /* クールなカードデザイン */
   .live-rank-card { display: flex; justify-content: space-between; align-items: center; background: rgba(0, 0, 0, 0.6); border: 1px solid #2f3542; padding: 20px 25px; border-radius: 6px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); flex-shrink: 0; transition: transform 0.2s; border-left: 4px solid #7f8fa6; }
   
-  /* ネオン・アラートカラー */
   .live-rank-card.worst-1 { border-left-color: #ff4757; background: linear-gradient(90deg, rgba(255, 71, 87, 0.15) 0%, rgba(0,0,0,0.6) 50%); border-top: 1px solid rgba(255, 71, 87, 0.3); border-bottom: 1px solid rgba(255, 71, 87, 0.3); border-right: 1px solid rgba(255, 71, 87, 0.3); box-shadow: 0 0 20px rgba(255, 71, 87, 0.15); }
   .live-rank-card.worst-2 { border-left-color: #ffa502; background: linear-gradient(90deg, rgba(255, 165, 2, 0.1) 0%, rgba(0,0,0,0.6) 50%); border-color: rgba(255, 165, 2, 0.2); border-left: 4px solid #ffa502; }
   .live-rank-card.worst-3 { border-left-color: #eccc68; background: linear-gradient(90deg, rgba(236, 204, 104, 0.05) 0%, rgba(0,0,0,0.6) 50%); border-color: rgba(236, 204, 104, 0.1); border-left: 4px solid #eccc68; }
 
-  /* 英語の順位表記 */
   .rank-col { font-weight: bold; width: 80px; text-align: left; font-size: 22px; color: #7f8fa6; font-family: 'Courier New', monospace; letter-spacing: 1px; }
   .worst-1 .rank-col { color: #ff4757; text-shadow: 0 0 10px rgba(255, 71, 87, 0.5); }
   .worst-2 .rank-col { color: #ffa502; }
   .worst-3 .rank-col { color: #eccc68; }
 
-  /* 名前とリエントリー表示 */
   .name-col { flex-grow: 1; text-align: left; font-weight: bold; color: #f1f2f6; padding-left: 15px; font-size: 20px; letter-spacing: 1px; }
   .entry-col { font-weight: bold; font-size: 24px; width: 150px; text-align: right; color: #ff4757; font-family: 'Courier New', monospace; letter-spacing: 2px; }
 
@@ -69,16 +65,16 @@
   .secret-btn { position: fixed; bottom: 15px; left: 15px; background: transparent; color: #57606f; border: none; font-size: 14px; cursor: pointer; padding: 10px; transition: color 0.3s; outline: none; z-index: 100; }
   .secret-btn:hover { color: #d4af37; }
 
-  /* パスワード入力用モーダル（ダークに統一） */
+  /* パスワード入力用モーダル */
   .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
   .modal-content { background: #121212; padding: 40px; border-radius: 8px; border: 1px solid #333; text-align: center; width: 90%; max-width: 350px; box-shadow: 0 0 30px rgba(0,0,0,1); }
-  .modal-content h3 { color: #d4af37; margin-top: 0; font-size: 18px; margin-bottom: 10px; letter-spacing: 3px; text-transform: uppercase; }
-  .modal-content p { font-size: 12px; color: #7f8fa6; margin-bottom: 25px; letter-spacing: 1px; }
+  .modal-content h3 { color: #d4af37; margin-top: 0; font-size: 18px; margin-bottom: 10px; letter-spacing: 3px; text-transform: uppercase; margin-right: -3px; }
+  .modal-content p { font-size: 12px; color: #7f8fa6; margin-bottom: 25px; letter-spacing: 1px; margin-right: -1px; }
   
-  #adminPass { width: 140px; padding: 12px; font-size: 36px; text-align: center; letter-spacing: 12px; border-radius: 4px; border: 1px solid #555; background: #000; color: #d4af37; margin-bottom: 30px; outline: none; transition: all 0.3s; font-family: 'Courier New', monospace; }
+  #adminPass { width: 140px; padding: 12px; font-size: 36px; text-align: center; letter-spacing: 12px; border-radius: 4px; border: 1px solid #555; background: #000; color: #d4af37; margin-bottom: 30px; outline: none; transition: all 0.3s; font-family: 'Courier New', monospace; padding-left: 24px; /* 文字間隔のバランス調整 */ }
   #adminPass:focus { border-color: #d4af37; box-shadow: 0 0 15px rgba(212, 175, 55, 0.3); }
   
-  .modal-close-btn { background: transparent; color: #7f8fa6; border: 1px solid #555; padding: 10px 30px; border-radius: 4px; cursor: pointer; font-size: 12px; transition: all 0.3s; letter-spacing: 2px; text-transform: uppercase; }
+  .modal-close-btn { background: transparent; color: #7f8fa6; border: 1px solid #555; padding: 10px 30px; border-radius: 4px; cursor: pointer; font-size: 12px; transition: all 0.3s; letter-spacing: 2px; text-transform: uppercase; margin-right: -2px; }
   .modal-close-btn:hover { background: #333; color: #fff; border-color: #7f8fa6; }
 
   /* 📱 スマホ用の滑らかスクロール＆センター調整設定 */
@@ -88,14 +84,13 @@
     .left-col { border-right: none; border-bottom: 1px solid rgba(127, 140, 141, 0.3); padding: 30px 15px; }
     .right-col { padding: 30px 15px; overflow: visible; }
     
-    .suits { font-size: 32px; margin-right: -12px; }
-    h1 { font-size: 32px; margin-right: -4px; }
-    .subtitle { margin-right: -3px; }
+    .suits { font-size: 32px; }
+    h1 { font-size: 32px; }
 
     .timer-display { font-size: 52px; padding: 10px 20px; margin-bottom: 30px; }
     .menu-btn.ranking { width: 100%; font-size: 16px; padding: 15px; }
     
-    .board-title { font-size: 18px; text-align: center; justify-content: center; }
+    .board-title { font-size: 18px; text-align: center; justify-content: center; margin-right: -4px; }
     .live-ranking-list { height: auto; overflow-y: visible; padding-right: 0; }
     
     .live-rank-card { padding: 15px; border-radius: 4px; }
@@ -217,12 +212,10 @@
         let rankStr = (index + 1) + "th";
         let rankClass = "worst-other";
         
-        // クールな英語順位表記
         if (index === 0) { rankStr = "1st"; rankClass = "worst-1"; }
         else if (index === 1) { rankStr = "2nd"; rankClass = "worst-2"; }
         else if (index === 2) { rankStr = "3rd"; rankClass = "worst-3"; }
 
-        // スタイリッシュな「//」区切り
         let namesText = group.names.join(' // ');
         let entryText = group.reEntry + " RE";
 
