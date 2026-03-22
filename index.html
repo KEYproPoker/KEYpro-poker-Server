@@ -103,7 +103,9 @@
   .empty-text span { color: #d4af37; font-weight: bold; font-size: 13px; }
   
   .footer-text { position: absolute; bottom: 15px; right: 20px; font-size: 11px; color: #57606f; letter-spacing: 1px; text-transform: uppercase; }
-  .secret-btn { position: fixed; bottom: 15px; left: 15px; background: transparent; color: #57606f; border: none; font-size: 14px; cursor: pointer; padding: 10px; transition: color 0.3s; outline: none; z-index: 100; }
+  
+  /* ダイヤルボタン */
+  .secret-btn { position: fixed; bottom: 15px; left: 15px; background: transparent; color: #57606f; border: none; font-size: 24px; cursor: pointer; padding: 10px; transition: color 0.3s; outline: none; z-index: 100; }
   .secret-btn:hover { color: #ffffff; }
 
   /* パスワード入力用モーダル */
@@ -116,17 +118,55 @@
   .modal-close-btn { background: transparent; color: #7f8fa6; border: 1px solid #555; padding: 10px 30px; border-radius: 50px; cursor: pointer; font-size: 12px; transition: all 0.3s; letter-spacing: 2px; text-transform: uppercase; margin-right: -2px; }
   .modal-close-btn:hover { background: #ffffff; color: #000; border-color: #ffffff; }
 
-  /* ★★★ 追加：チップが降り注ぐアニメーション用のスタイル ★★★ */
-  .chip-rain-container {
+  /* ★★★ NEW CHALLENGER（新規参加）演出のスタイル ★★★ */
+  .new-challenger-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    pointer-events: none; /* クリックの邪魔をしない */
-    z-index: 9999;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    animation: flashBg 0.5s ease-out;
     overflow: hidden;
   }
+  @keyframes flashBg {
+    0% { background: rgba(212, 175, 55, 0.6); }
+    100% { background: rgba(0, 0, 0, 0.85); }
+  }
+  .new-challenger-title {
+    color: #ff4757;
+    font-family: 'Nosifer', sans-serif;
+    font-size: 50px;
+    text-shadow: 0 0 20px rgba(255, 71, 87, 0.8);
+    letter-spacing: 5px;
+    margin-bottom: 20px;
+    animation: scaleIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    z-index: 10001;
+  }
+  .new-challenger-name {
+    color: #d4af37;
+    font-size: 70px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 10px;
+    text-shadow: 0 0 30px #d4af37, 0 0 10px #fff;
+    animation: slideUpFade 0.5s ease-out 0.2s forwards;
+    opacity: 0;
+    transform: translateY(50px);
+    z-index: 10001;
+  }
+  @keyframes scaleIn {
+    0% { transform: scale(3); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  @keyframes slideUpFade {
+    0% { transform: translateY(50px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+  }
+  
+  /* 降り注ぐチップ */
   .falling-chip {
     position: absolute;
     width: 60px;
@@ -141,6 +181,7 @@
     box-shadow: 0 5px 15px rgba(0,0,0,0.6), inset 0 0 10px rgba(0,0,0,0.6);
     border: 4px dashed rgba(255,255,255,0.7);
     animation: fall linear forwards;
+    z-index: 10000;
   }
   .falling-chip[data-color="red"] { background: radial-gradient(circle, #e74c3c, #c0392b); }
   .falling-chip[data-color="black"] { background: radial-gradient(circle, #2c3e50, #000000); }
@@ -195,7 +236,9 @@
     
     .footer-text { position: static; text-align: center; margin-top: 20px; padding-bottom: 20px; }
     
-    /* スマホ版ではチップを少し小さく */
+    /* スマホ版の演出サイズ */
+    .new-challenger-title { font-size: 28px; }
+    .new-challenger-name { font-size: 40px; letter-spacing: 4px; text-align: center; padding: 0 10px; }
     .falling-chip { width: 40px; height: 40px; font-size: 16px; border-width: 3px; }
   }
 </style>
@@ -270,18 +313,33 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // ★ プレイヤー追加検知のための変数（最初は -1 にしておく）
-    let previousPlayerCount = -1;
+    // ★ プレイヤーリストの差分を記録して新規追加を検知する変数
+    let previousPlayersList = null;
 
-    // ★ チップを降らせるアニメーション関数
-    function triggerChipRain() {
+    // ★ NEW CHALLENGER とチップを降らせるド派手な演出関数
+    function triggerNewChallenger(playerName) {
+      // 演出用のコンテナを作成
       const container = document.createElement('div');
-      container.className = 'chip-rain-container';
+      container.className = 'new-challenger-overlay';
+      
+      // NEW CHALLENGER テキスト
+      const title = document.createElement('div');
+      title.className = 'new-challenger-title';
+      title.innerText = 'NEW CHALLENGER';
+      
+      // プレイヤー名 JOINED テキスト
+      const nameDiv = document.createElement('div');
+      nameDiv.className = 'new-challenger-name';
+      nameDiv.innerText = playerName + ' JOINED!';
+      
+      container.appendChild(title);
+      container.appendChild(nameDiv);
       document.body.appendChild(container);
 
+      // チップを降らせる
       const colors = ['red', 'black', 'gold', 'green', 'blue'];
       const suits = ['♠', '♥', '♣', '♦'];
-      const chipCount = window.innerWidth < 600 ? 20 : 40; // スマホは少なめ、PCは多め
+      const chipCount = window.innerWidth < 600 ? 30 : 60; // 画面サイズに合わせて量を変える
 
       for (let i = 0; i < chipCount; i++) {
         const chip = document.createElement('div');
@@ -289,21 +347,20 @@
         chip.setAttribute('data-color', colors[Math.floor(Math.random() * colors.length)]);
         chip.innerText = suits[Math.floor(Math.random() * suits.length)];
         
-        // 画面の横幅のランダムな位置から降らす
         chip.style.left = (Math.random() * 100) + 'vw';
-        
-        // 落ちる速度と開始タイミングをバラバラに
-        const duration = Math.random() * 2 + 2; // 2秒〜4秒
+        const duration = Math.random() * 2 + 2; 
         chip.style.animationDuration = duration + 's';
         chip.style.animationDelay = (Math.random() * 0.5) + 's';
         
         container.appendChild(chip);
       }
 
-      // アニメーションが終わったらコンテナごと削除して軽くする
+      // 3.5秒後にフェードアウトして消す
       setTimeout(() => {
-        container.remove();
-      }, 5000);
+        container.style.opacity = '0';
+        container.style.transition = 'opacity 0.5s ease';
+        setTimeout(() => container.remove(), 500);
+      }, 3500);
     }
 
     let currentTimerState = { running: false, elapsedSeconds: 0, lastUpdate: Date.now() };
@@ -333,22 +390,27 @@
       
       let activePlayers = [];
       let reEntryPlayers = [];
+      let currentNamesList = []; // 現在のプレイヤー名のリスト
       
       draftData.forEach(player => {
         if (player.name && player.name.trim() !== "" && player.entry > 0) { 
           activePlayers.push({ name: player.name });
+          currentNamesList.push(player.name);
           if (player.entry > 1) {
             reEntryPlayers.push({ name: player.name, reEntry: player.entry - 1 });
           }
         }
       });
 
-      // ★ プレイヤー人数の増加を検知して演出を発動！
-      const currentCount = activePlayers.length;
-      if (previousPlayerCount !== -1 && currentCount > previousPlayerCount) {
-        triggerChipRain();
+      // ★ 差分から「新しく追加された人」を特定して演出を発動！
+      if (previousPlayersList !== null) {
+        // 現在のリストの中で、前回のリストに含まれていない人を探す
+        let newPlayers = currentNamesList.filter(name => !previousPlayersList.includes(name));
+        if (newPlayers.length > 0) {
+          triggerNewChallenger(newPlayers[0]); // 新規プレイヤーの名前で演出！
+        }
       }
-      previousPlayerCount = currentCount; // 現在の人数を記録して次回に備える
+      previousPlayersList = [...currentNamesList]; // 現在のリストを次回用に保存
 
       // 🔴 リエントリーランキングの描画
       if (reEntryPlayers.length === 0) {
@@ -417,12 +479,13 @@
     const now = new Date();
     document.getElementById('todayDate').innerText = now.getFullYear() + "/" + String(now.getMonth() + 1).padStart(2, '0') + "/" + String(now.getDate()).padStart(2, '0');
 
+    // ★ ダイヤルボタン押下時に、同期的に input.focus() を実行して即座にキーボードを立ち上げる！
     window.showPasswordModal = function() {
       const modal = document.getElementById('passModal');
       const input = document.getElementById('adminPass');
       modal.style.display = 'flex';
       input.value = '';
-      setTimeout(() => input.focus(), 100);
+      input.focus(); 
     };
 
     window.closeModal = function() {
