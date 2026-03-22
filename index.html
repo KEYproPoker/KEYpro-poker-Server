@@ -6,7 +6,7 @@
 <title>ポーカー管理 - KEYpro poker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Nosifer&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Nosifer&family=Work+Sans:wght@900&display=swap" rel="stylesheet">
 <style>
   /* 全体の設定 */
   *, *::before, *::after { box-sizing: border-box; }
@@ -21,19 +21,15 @@
   .left-col { flex: 1; padding: 40px; display: flex; flex-direction: column; justify-content: center; align-items: center; border-right: 1px solid rgba(127, 140, 141, 0.3); background: rgba(0,0,0,0.4); position: relative; }
   .right-col { flex: 1.5; padding: 40px; display: flex; flex-direction: column; overflow: hidden; background: rgba(10, 15, 20, 0.6); gap: 30px; }
 
-  @font-face {
-    font-family: 'KEYproLogo';
-    src: url('path/to/your/new/font.woff2') format('woff2'),
-         url('path/to/your/new/font.woff') format('woff');
-    font-weight: 900;
-    font-style: normal;
-  }
-
+  /* 左カラムのデザイン */
   .suits { font-size: 28px; letter-spacing: 12px; margin-bottom: 10px; opacity: 0.9; margin-right: -12px; }
   .suit-red { color: #ff4757; }
   .suit-black { color: #ffffff; }
   
-  h1 { font-family: 'KEYproLogo', 'KEYpro', sans-serif; color: #d4af37; font-size: 42px; margin: 0 -4px 10px 0; text-shadow: 0 0 15px rgba(212, 175, 55, 0.4); letter-spacing: 4px; font-weight: 900; }
+  /* ★ ロゴテキスト「KEYpro poker」を画像に忠実に再現（Work Sans Black 900で太さと間隔を調整、K, E, Yは大文字、p, r, oは小文字） */
+  h1 { font-family: 'Work Sans', sans-serif; color: #d4af37; font-size: 50px; margin: 0 -4px 10px 0; text-shadow: 0 0 15px rgba(212, 175, 55, 0.4); letter-spacing: -3px; font-weight: 900; }
+  
+  /* pokerの部分は以前のVIPゴールドに合わせて維持 */
   h1 span { font-family: 'KEYpro', sans-serif; color: #d4af37; font-size: 14px; margin-left: 10px; font-weight: normal; text-transform: uppercase; letter-spacing: 4px; vertical-align: middle; }
 
   p.subtitle { font-size: 14px; margin-bottom: 40px; margin-right: -3px; color: #7f8fa6; letter-spacing: 3px; text-transform: uppercase; }
@@ -58,21 +54,21 @@
   .board-title { color: #d4af37; font-size: 20px; letter-spacing: 4px; font-weight: bold; text-align: left; border-bottom: 1px solid rgba(212, 175, 55, 0.4); padding-bottom: 10px; text-transform: uppercase; display: flex; align-items: center; gap: 10px; text-shadow: 0 0 10px rgba(212, 175, 55, 0.4); margin-bottom: 10px; flex-shrink: 0; }
   .board-title::before { content: ''; display: inline-block; width: 6px; height: 20px; background-color: #d4af37; box-shadow: 0 0 10px #d4af37; }
   
-  /* 🔴 リエントリーランキング（恐怖デザイン： Nosiferフォント + ドクロSVG） */
+  /* 🔴 リエントリーランキング（恐怖デザイン： Nosiferフォント + 更新された詳細ドクロSVG） */
   .live-ranking-list { display: flex; flex-direction: column; gap: 8px; width: 100%; flex-grow: 1; overflow-y: auto; padding-right: 15px; margin-bottom: 10px; position: relative; }
   .live-ranking-list::-webkit-scrollbar { width: 4px; }
   .live-ranking-list::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
   .live-ranking-list::-webkit-scrollbar-thumb { background: #57606f; }
 
-  /* タイトルにホラーフォントとドクロを追加 */
+  /* タイトルにホラーフォントと更新された詳細ドクロを追加 */
   .title-re-entry { font-family: 'Nosifer', sans-serif; color: #b30000; text-shadow: 0 0 15px rgba(179, 0, 0, 0.6); letter-spacing: 2px; border-bottom-color: rgba(179, 0, 0, 0.5); }
   .title-re-entry::before { background-color: #b30000; box-shadow: 0 0 10px #b30000; }
-  .title-re-entry .title-skull { width: 20px; height: 20px; fill: #b30000; margin-left: 10px; filter: drop-shadow(0 0 5px #b30000); }
+  .title-re-entry .title-skull { width: 22px; height: 22px; fill: #b30000; margin-left: 10px; filter: drop-shadow(0 0 5px #b30000); }
 
   .live-rank-card { display: flex; justify-content: space-between; align-items: center; background: rgba(0, 0, 0, 0.7); border-left: 4px solid transparent; padding: 12px 20px; border-radius: 0 8px 8px 0; box-shadow: inset 0 -1px 0 rgba(255,255,255,0.05); flex-shrink: 0; transition: all 0.3s; position: relative; overflow: hidden; border: 1px solid #333; }
   
-  /* ★ カード背景に巨大な半透明ドクロを配置 */
-  .live-rank-card .card-skull-bg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 120px; height: 120px; fill: rgba(255, 255, 255, 0.03); z-index: 0; pointer-events: none; }
+  /* ★ カード背景に巨大な半透明の詳細ドクロを配置（以前のより複雑なデザイン） */
+  .live-rank-card .card-skull-bg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 140px; height: 140px; fill: rgba(255, 255, 255, 0.04); z-index: 0; pointer-events: none; }
 
   /* 色を錆びたような血の赤にシフト */
   .live-rank-card.worst-1 { border-left-color: #b30000; background: linear-gradient(90deg, rgba(179, 0, 0, 0.1) 0%, rgba(0,0,0,0.7) 100%); border-color: rgba(179, 0, 0, 0.3); }
@@ -84,7 +80,7 @@
   .rank-badge-text { font-family: 'Nosifer', sans-serif; font-size: 36px; font-weight: normal; color: transparent; -webkit-text-stroke: 1.5px #57606f; letter-spacing: 2px; line-height: 1; }
   
   .worst-1 .rank-badge-text { -webkit-text-stroke-color: #b30000; filter: drop-shadow(0 0 10px rgba(179, 0, 0, 0.7)); }
-  .worst-1 .card-skull-bg { fill: rgba(179, 0, 0, 0.05); } /* ★ 1位は赤いドクロ */
+  .worst-1 .card-skull-bg { fill: rgba(179, 0, 0, 0.06); } /* ★ 1位は赤い詳細ドクロ */
 
   .worst-2 .rank-badge-text { -webkit-text-stroke-color: #bf9b30; filter: drop-shadow(0 0 8px rgba(191, 155, 48, 0.5)); }
   .worst-3 .rank-badge-text { -webkit-text-stroke-color: #a67c00; filter: drop-shadow(0 0 6px rgba(166, 124, 0, 0.4)); }
@@ -149,18 +145,18 @@
     .bottom-btn.rules { font-size: 11px; }
     
     .suits { font-size: 32px; }
-    h1 { font-size: 32px; }
+    h1 { font-size: 36px; } /* スマホ時も少し大きめに */
     .timer-display { font-size: 56px; padding: 10px 20px; margin-bottom: 10px; }
     
     .board-title { font-size: 18px; text-align: center; justify-content: center; margin-right: -4px; }
     .board-title::before { display: none; }
     
-    .title-re-entry { letter-spacing: 1px; }
+    .title-re-entry { letter-spacing: 1px; font-size: 16px; }
     .title-re-entry .title-skull { display: none; }
 
     .live-ranking-list { height: auto; overflow-y: visible; padding-right: 0; }
     .live-rank-card { padding: 10px 15px; border-radius: 0 4px 4px 0; border-left-width: 3px; }
-    .live-rank-card .card-skull-bg { width: 80px; height: 80px; }
+    .live-rank-card .card-skull-bg { width: 90px; height: 90px; }
     
     .rank-col { width: 45px; }
     .rank-badge-text { font-size: 28px; }
@@ -188,7 +184,7 @@
         <div class="suits">
           <span class="suit-black">♠</span><span class="suit-red">♥</span><span class="suit-black">♣</span><span class="suit-red">♦</span>
         </div>
-        <h1>KEYpro <span>poker</span></h1>
+        <h1>KEYpro<span>poker</span></h1>
         <p class="subtitle">Official Dashboard</p>
         
         <div class="date-header" id="todayDate">----/--/--</div>
