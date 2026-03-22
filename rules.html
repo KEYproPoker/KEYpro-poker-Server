@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HOW TO PLAY - KEYpro poker</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+
+  body, button, h1, h2, h3, p, div, li { font-family: 'KEYpro', sans-serif; }
+  body { background: radial-gradient(circle at center, #1a5c38 0%, #0a2e1c 100%); color: #ffffff; margin: 0; min-height: 100vh; padding: 20px; overflow-x: hidden; }
+  
+  .container { max-width: 800px; margin: 0 auto; background: rgba(0, 0, 0, 0.75); border-radius: 12px; border: 1px solid #d4af37; box-shadow: 0 15px 50px rgba(0,0,0,0.8); padding: 40px; }
+  
+  .header { text-align: center; margin-bottom: 40px; border-bottom: 1px solid rgba(212, 175, 55, 0.3); padding-bottom: 20px; }
+  h1 { color: #d4af37; font-size: 36px; margin: 0 0 10px 0; text-shadow: 0 0 15px rgba(212, 175, 55, 0.4); letter-spacing: 4px; }
+  .subtitle { font-size: 14px; color: #7f8fa6; letter-spacing: 3px; text-transform: uppercase; margin: 0; }
+
+  /* コンテンツのセクション */
+  .section { margin-bottom: 40px; }
+  .section h2 { color: #2ed573; font-size: 22px; border-left: 5px solid #2ed573; padding-left: 15px; margin-bottom: 20px; letter-spacing: 2px; text-shadow: 0 0 10px rgba(46, 213, 115, 0.3); }
+  
+  .card-block { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); padding: 20px; border-radius: 8px; margin-bottom: 15px; line-height: 1.6; }
+  .card-block h3 { color: #f1c40f; margin-top: 0; font-size: 18px; letter-spacing: 1px; }
+  .card-block p { color: #dcdde1; font-size: 15px; margin-bottom: 0; }
+
+  /* リストのデザイン */
+  ul { padding-left: 20px; color: #dcdde1; font-size: 15px; }
+  li { margin-bottom: 10px; }
+  li strong { color: #ff4757; }
+
+  /* 戻るボタン */
+  .btn-back { display: block; width: 100%; max-width: 300px; margin: 40px auto 0; padding: 15px; background: transparent; color: #ffffff; font-size: 16px; font-weight: bold; text-align: center; text-decoration: none; border: 1px solid rgba(255,255,255,0.3); border-radius: 50px; transition: all 0.3s; letter-spacing: 2px; }
+  .btn-back:hover { background: rgba(255,255,255,0.1); border-color: #ffffff; }
+
+  /* スマホ用 */
+  @media screen and (max-width: 600px) {
+    body { padding: 10px; }
+    .container { padding: 20px 15px; }
+    h1 { font-size: 28px; }
+    .section h2 { font-size: 18px; }
+    .card-block h3 { font-size: 16px; }
+    .card-block p, ul { font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header">
+      <h1>HOW TO PLAY</h1>
+      <p class="subtitle">テキサスホールデム・ルールガイド</p>
+    </div>
+
+    <div class="section">
+      <h2>基本アクション</h2>
+      <div class="card-block">
+        <ul>
+          <li><strong>チェック (Check)</strong>：誰もベットしていない時、チップを出さずに順番を回す。</li>
+          <li><strong>ベット (Bet)</strong>：自分が最初にチップを賭ける。</li>
+          <li><strong>コール (Call)</strong>：前の人と同じ額のチップを出して勝負に乗る。</li>
+          <li><strong>レイズ (Raise)</strong>：前の人より賭け額をさらに釣り上げる。</li>
+          <li><strong>フォールド (Fold)</strong>：勝負を降りる。（今まで出したチップは没収）</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>役の強さ（ハンドランク）</h2>
+      <div class="card-block">
+        <p style="text-align: center; color: #7f8fa6; font-size: 14px; margin-bottom: 10px;">※上が一番強く、下が一番弱いです。</p>
+        <ul>
+          <li>ロイヤルストレートフラッシュ</li>
+          <li>ストレートフラッシュ</li>
+          <li>クワッズ (フォーカード)</li>
+          <li>フルハウス</li>
+          <li>フラッシュ</li>
+          <li>ストレート</li>
+          <li>スリーオブアカインド (スリーカード)</li>
+          <li>ツーペア</li>
+          <li>ワンペア</li>
+          <li>ハイカード (役なし/ブタ)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>NEXT STEP: 勝率を考える</h2>
+      <div class="card-block">
+        <h3>2x4の法則 (The 2x4 Rule)</h3>
+        <p>フロップ（場に3枚出た状態）で、自分が欲しいカード（アウツ）の枚数を数えます。その枚数に<strong>「4」</strong>を掛けると、リバーまでに役が完成するおおよその確率(%)がサクッと計算できます。ターン（場に4枚）の時は<strong>「2」</strong>を掛けます。</p>
+      </div>
+      <div class="card-block">
+        <h3>ポットオッズ (Pot Odds)</h3>
+        <p>「今ポットにあるチップ総額」と「自分がコールすべき額」の比率のことです。例えばポットに1000点あり、コール額が500点ならオッズは 2:1。自分の役が完成する確率がこのオッズに合うかどうかで、勝負に乗るべきかを冷静に判断できます。</p>
+      </div>
+    </div>
+
+    <a href="index.html" class="btn-back">◀ ダッシュボードに戻る</a>
+  </div>
+
+</body>
+</html>
