@@ -16,7 +16,7 @@
   /* コンテナ：高級感のあるダーク＆ゴールド */
   .container { width: 100%; max-width: 900px; margin: 0 auto; background-color: rgba(0, 0, 0, 0.7); padding: 25px 20px; border-radius: 16px; border: 2px solid #d4af37; box-shadow: 0 10px 40px rgba(0,0,0,0.7); }
   
-  /* タイトル：シンプルに「チップ精算」 */
+  /* タイトル */
   h2 { color: #d4af37; margin-top: 0; margin-bottom: 20px; font-size: 24px; border-bottom: 2px solid #d4af37; padding-bottom: 15px; text-shadow: 0px 4px 10px rgba(0,0,0,0.8); letter-spacing: 3px; text-align: center; font-weight: bold; }
 
   /* タイマーコントロールパネル */
@@ -62,7 +62,7 @@
   .back-btn { background: transparent; border: 1px solid #ecf0f1; margin-top: 20px; color: #ecf0f1; padding: 15px; font-size: 15px; }
   .back-btn:hover { background: rgba(255,255,255,0.1); }
   
-  /* サマリー（円を削除） */
+  /* サマリー */
   .summary { margin-top: 30px; font-size: 20px; font-weight: bold; color: #fff; background: rgba(0,0,0,0.5); padding: 20px; border-radius: 12px; border: 2px solid #d4af37; text-align: left; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
   .total-label { color: #d4af37; font-size: 16px; margin-right: 10px; }
   .status-badge { font-size: 14px; padding: 5px 15px; border-radius: 20px; font-weight: normal; }
@@ -72,46 +72,72 @@
 
   .draft-notice { font-size: 12px; color: #bdc3c7; margin-top: 15px; text-align: center; letter-spacing: 1px; }
 
-  /* 📱 スマホ向け（徹底的に崩れない強固なレイアウト） */
+  /* 📱 スマホ向け（絶対にはみ出さない縦型アプリレイアウト） */
   @media screen and (max-width: 600px) {
-    body { padding: 8px 4px; }
-    .container { padding: 15px 10px; border-radius: 12px; }
-    h2 { font-size: 18px; letter-spacing: 1px; margin-bottom: 15px; }
+    body { padding: 10px 5px; }
+    .container { padding: 20px 15px; border-radius: 12px; }
+    h2 { font-size: 20px; letter-spacing: 2px; margin-bottom: 20px; }
     
-    /* テーブルの横スクロールを無効化してスライドを防止 */
-    .table-wrapper { overflow-x: visible; box-shadow: none; margin-bottom: 15px; }
-    
-    table, thead, tbody, tr, td { display: block; width: 100%; }
+    /* はみ出しの元凶だった table の設定を完全リセット */
+    .table-wrapper { overflow: hidden; box-shadow: none; background: transparent; margin-bottom: 10px; }
+    table { min-width: 0 !important; width: 100%; border: none; }
+    table, thead, tbody, tr, td { display: block; }
     thead { display: none; }
     
-    /* 1人分のカードブロック */
-    tr { background: rgba(255, 255, 255, 0.04); margin-bottom: 15px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.08); padding: 12px 12px 50px 12px; position: relative; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+    /* 1人分のアプリ風カード */
+    tr { 
+      background: linear-gradient(145deg, rgba(20, 25, 30, 0.9), rgba(0, 0, 0, 0.9)); 
+      margin-bottom: 20px; 
+      border-radius: 12px; 
+      border: 1px solid rgba(212, 175, 55, 0.4); /* VIPゴールド枠 */
+      padding: 15px 15px 55px 15px; 
+      position: relative; 
+      box-shadow: 0 6px 15px rgba(0,0,0,0.5); 
+    }
     
-    /* セルをFlexboxで強固に固定 */
-    td { padding: 10px 0; border: none; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px dashed rgba(255, 255, 255, 0.05); }
+    td { 
+      padding: 8px 0; 
+      border: none; 
+      display: flex; 
+      align-items: center; 
+      justify-content: space-between; 
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.1); 
+    }
     td:nth-last-child(2) { border-bottom: none; }
     
-    /* 左側のラベル部分 */
-    td::before { content: attr(data-label); color: #bdc3c7; font-size: 13px; width: 35%; flex-shrink: 0; font-weight: bold; white-space: nowrap; text-align: left; }
-    
-    /* 右側の入力欄 */
-    input { width: 65%; flex-grow: 1; padding: 10px; font-size: 16px; border-color: #666; margin: 0; min-width: 0; }
-    .readonly { width: 65%; flex-grow: 1; text-align: right; font-size: 16px; padding: 8px 5px; color: #fff; min-width: 0; font-weight: bold; }
+    /* ★ 名前入力欄を一番上に独立させて広く確保 */
+    td[data-label="名前"] {
+      flex-direction: column;
+      align-items: flex-start;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+      padding-bottom: 15px;
+      margin-bottom: 10px;
+    }
+    td[data-label="名前"]::before { width: 100%; color: #d4af37; margin-bottom: 8px; font-size: 14px; letter-spacing: 1px; }
+    td[data-label="名前"] input { width: 100%; font-size: 18px; padding: 12px; background: rgba(255,255,255,0.05); }
 
-    /* 削除ボタンの配置 */
-    td:last-child { position: absolute; bottom: 10px; right: 12px; padding: 0; display: block; width: auto; border: none; }
+    /* その他の数字入力欄 */
+    td:not([data-label="名前"])::before { content: attr(data-label); color: #bdc3c7; font-size: 13px; width: 40%; flex-shrink: 0; font-weight: bold; text-align: left; }
+    td:not([data-label="名前"]) input { width: 60%; flex-grow: 1; padding: 10px; font-size: 18px; text-align: right; min-width: 0; }
+    td:not([data-label="名前"]) .readonly { width: 60%; text-align: right; font-size: 16px; color: #fff; padding: 8px 5px; font-weight: bold; }
+
+    /* 削除ボタン */
+    td:last-child { position: absolute; bottom: 12px; right: 15px; padding: 0; display: block; width: auto; border: none; }
     td:last-child::before { display: none; }
-    .del-btn { padding: 8px 20px; font-size: 13px; border-radius: 20px; }
+    .del-btn { padding: 8px 25px; font-size: 13px; border-radius: 50px; background: rgba(231, 76, 60, 0.1); }
     
-    .timer-display-small { font-size: 32px; }
-    .timer-btns .t-btn { padding: 10px 5px; font-size: 12px; }
+    /* タイマー */
+    .timer-display-small { font-size: 42px; }
+    .timer-btns .t-btn { padding: 12px 5px; font-size: 12px; }
     
-    .summary { flex-direction: column; align-items: flex-start; gap: 10px; font-size: 16px; padding: 15px; }
-    #totalPay { font-size: 24px !important; }
-    .save-btn { font-size: 16px; padding: 15px; }
+    /* 合計とボタン */
+    .summary { flex-direction: column; align-items: flex-start; gap: 12px; font-size: 16px; padding: 15px; }
+    #totalPay { font-size: 26px !important; }
+    .save-btn { font-size: 16px; padding: 16px; margin-top: 10px; }
+    .add-btn { font-size: 16px; padding: 16px; }
   }
 
-  /* ★★★ 画像生成用エリア（円を削除） ★★★ */
+  /* ★★★ 画像生成用エリア ★★★ */
   #reportArea {
     position: absolute;
     top: -9999px;
@@ -227,7 +253,6 @@
     </div>
   </div>
 
-
   <div id="reportArea">
     <div class="report-header">
       <div style="display:flex; align-items:center; gap:20px;">
@@ -254,7 +279,7 @@
         </tr>
       </thead>
       <tbody id="reportTableBody">
-        </tbody>
+      </tbody>
     </table>
 
     <div class="report-footer">
@@ -265,7 +290,6 @@
       </div>
     </div>
   </div>
-
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
@@ -284,9 +308,6 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // -------------------------
-    // タイマー処理
-    // -------------------------
     let currentTimerState = { running: false, elapsedSeconds: 0, lastUpdate: Date.now() };
 
     onValue(ref(db, 'pokerSession/timer'), (snapshot) => {
@@ -329,9 +350,6 @@
       update(ref(db, 'pokerSession/timer'), newState);
     };
 
-    // -------------------------
-    // 精算処理
-    // -------------------------
     const STARTING_CHIPS = 20000;
     const RATE = 10;
     const INITIAL_ROWS = 5;
@@ -374,11 +392,10 @@
       set(ref(db, 'pokerSession/players'), draftData);
     };
 
-    // ★ 円の記述を削除
     window.createRow = function(name = "", entry = 1, finalChips = 0) {
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td data-label="名前"><input type="text" class="name-input" placeholder="名前" value="${name}" oninput="window.calculate()"></td>
+        <td data-label="名前"><input type="text" class="name-input" placeholder="プレイヤー名" value="${name}" oninput="window.calculate()"></td>
         <td data-label="エントリー"><input type="number" class="entry" value="${entry}" min="0" oninput="window.calculate()"></td>
         <td data-label="最終持ち点"><input type="number" class="final-chips" value="${finalChips}" step="100" oninput="window.calculate()"></td>
         <td data-label="精算後 (点)"><input type="text" class="result readonly" value="-20,000" readonly tabindex="-1"></td>
@@ -415,7 +432,6 @@
       }
     };
 
-    // ★★★ 成績の確定、画像生成、GAS送信の一連の処理 ★★★
     window.confirmAndSave = function() {
       const rows = document.querySelectorAll('#tableBody tr');
       let playerData = [];
