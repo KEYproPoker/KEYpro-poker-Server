@@ -36,6 +36,9 @@
   input:focus { border-color: #d4af37; background-color: rgba(0, 0, 0, 0.9); box-shadow: 0 0 10px rgba(212, 175, 55, 0.3); }
   input[type="text"].name-input { text-align: left; }
   
+  /* PC時はカーソルを表示、スマホ時は下のメディアクエリで透明に */
+  input.numpad-trigger { font-size: 20px; font-weight: bold; }
+
   .readonly { background-color: transparent; border: none; font-weight: bold; color: #bdc3c7; text-align: right; padding-right: 0; font-size: 15px; }
   
   .del-btn { background-color: transparent; color: #e74c3c; border: 1px solid #e74c3c; padding: 7px 12px; border-radius: 20px; cursor: pointer; font-size: 12px; white-space: nowrap; transition: all 0.3s; }
@@ -73,17 +76,14 @@
   }
   .custom-numpad.show { bottom: 0; }
   
-  .numpad-grid {
-    display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: #333;
-  }
+  .numpad-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: #333; }
   
   .numpad-btn {
     background: #000; color: #fff; border: none; font-size: 26px; padding: 22px 0;
     font-family: 'Courier New', monospace; font-weight: bold; cursor: pointer; outline: none;
     transition: background 0.1s;
     touch-action: manipulation;
-    user-select: none;
-    -webkit-user-select: none;
+    user-select: none; -webkit-user-select: none;
   }
   .numpad-btn:active { background: #333; }
   .numpad-btn.action { background: #1a252f; color: #e74c3c; font-size: 24px; }
@@ -95,7 +95,6 @@
   }
   .numpad-btn.done:active { filter: brightness(0.8); }
 
-  input.numpad-trigger { cursor: pointer; caret-color: transparent; font-size: 20px; font-weight: bold; }
   input.numpad-active {
     background-color: rgba(212, 175, 55, 0.15) !important;
     border-color: #d4af37 !important;
@@ -141,6 +140,9 @@
     td:not([data-label="名前"]) input { width: 60%; flex-grow: 1; padding: 10px; text-align: right; min-width: 0; }
     td:not([data-label="名前"]) .readonly { width: 60%; text-align: right; font-size: 16px; color: #fff; padding: 8px 5px; font-weight: bold; }
 
+    /* スマホの時だけカーソルを見えなくし、タップ感を持たせる */
+    input.numpad-trigger { cursor: pointer; caret-color: transparent; }
+
     td:last-child { position: absolute; bottom: 12px; right: 15px; padding: 0; display: block; width: auto; border: none; }
     td:last-child::before { display: none; }
     .del-btn { padding: 8px 25px; font-size: 13px; border-radius: 50px; background: rgba(231, 76, 60, 0.1); }
@@ -154,17 +156,14 @@
     .numpad-btn { padding: 18px 0; font-size: 24px; }
   }
 
-  /* ★★★ 画像生成用エリア（非表示・JSで動的にスマホ用/PC用を切り替え） ★★★ */
+  /* ★★★ 画像生成用エリア（非表示） ★★★ */
   #reportArea {
     position: absolute; top: -9999px; left: -9999px; 
     background: radial-gradient(circle at center, #1a5c38 0%, #0a2e1c 100%); 
     color: #ffffff; padding: 40px; box-sizing: border-box; 
     display: flex; flex-direction: column; border: 10px solid #d4af37;
   }
-  
-  /* PC用レイアウト（横長） */
   #reportArea.layout-pc { width: 1200px; height: 675px; }
-  /* ★ スマホ用レイアウト（縦長・文字特大） */
   #reportArea.layout-mobile { width: 750px; height: 1334px; padding: 50px 30px; }
 
   .report-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #d4af37; padding-bottom: 20px; margin-bottom: 20px; }
@@ -321,6 +320,9 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
+    // -------------------------
+    // タイマー処理
+    // -------------------------
     let currentTimerState = { running: false, elapsedSeconds: 0, lastUpdate: Date.now() };
     onValue(ref(db, 'pokerSession/timer'), (snapshot) => {
       const data = snapshot.val();
@@ -354,10 +356,16 @@
       update(ref(db, 'pokerSession/timer'), newState);
     };
 
+    // -------------------------
+    // カスタム電卓（テンキー）処理
+    // -------------------------
     let activeNumpadInput = null;
     let activeNumpadOriginal = "";
 
     window.openCustomNumpad = function(el) {
+      // ★ PC（画面幅600pxより大きい）場合は専用テンキーを開かず、標準キーボードを使わせる
+      if (window.innerWidth > 600) return;
+
       if (activeNumpadInput) { window.closeCustomNumpad(); }
       activeNumpadInput = el;
       activeNumpadOriginal = el.value; 
@@ -388,6 +396,27 @@
     window.numpadDel = function() { if (activeNumpadInput) { activeNumpadInput.value = activeNumpadInput.value.slice(0, -1); window.calculate(); } };
     window.numpadClear = function() { if (activeNumpadInput) { activeNumpadInput.value = ""; window.calculate(); } };
 
+    // ★ 画面サイズが変わった時（PC・スマホの切り替え時）の保護処理
+    window.addEventListener('resize', () => {
+      const isMobile = window.innerWidth <= 600;
+      document.querySelectorAll('.numpad-trigger').forEach(el => {
+        if (isMobile) {
+          el.setAttribute('readonly', 'readonly');
+          el.setAttribute('tabindex', '-1');
+        } else {
+          el.removeAttribute('readonly');
+          el.removeAttribute('tabindex');
+        }
+      });
+      // PCサイズになったらテンキーを自動で閉じる
+      if (!isMobile && activeNumpadInput) {
+        window.closeCustomNumpad();
+      }
+    });
+
+    // -------------------------
+    // 精算・同期処理
+    // -------------------------
     const STARTING_CHIPS = 20000;
     const RATE = 10;
     const INITIAL_ROWS = 5;
@@ -402,11 +431,19 @@
       if (!draftData && isFirstLoad) {
         tableBody.innerHTML = '';
         for (let i = 0; i < INITIAL_ROWS; i++) { tableBody.appendChild(window.createRow()); }
-        isFirstLoad = false; window.calculate(); return;
+        isFirstLoad = false;
+        // 初期状態のreadonly属性を設定
+        window.dispatchEvent(new Event('resize'));
+        window.calculate(); 
+        return;
       }
       isFirstLoad = false;
       const data = draftData || [];
-      while(tableBody.children.length < data.length) { tableBody.appendChild(window.createRow()); }
+
+      while(tableBody.children.length < data.length) { 
+        tableBody.appendChild(window.createRow()); 
+        window.dispatchEvent(new Event('resize')); // 行追加時にreadonly設定を反映
+      }
       while(tableBody.children.length > data.length) { tableBody.lastChild.remove(); }
 
       let totalPaySum = 0;
@@ -415,13 +452,17 @@
          const nameInput = row.querySelector('.name-input');
          const entryInput = row.querySelector('.entry');
          const chipsInput = row.querySelector('.final-chips');
+         
+         // ★ PCで自分がタイピング中（フォーカスが当たっている）のセルは上書きしない！
          if (document.activeElement !== nameInput) { nameInput.value = p.name || ""; }
-         if (entryInput !== activeNumpadInput) { entryInput.value = p.entry !== undefined ? p.entry : 1; }
-         if (chipsInput !== activeNumpadInput) { chipsInput.value = p.finalChips !== undefined ? p.finalChips : 0; }
+         if (entryInput !== activeNumpadInput && document.activeElement !== entryInput) { entryInput.value = p.entry !== undefined ? p.entry : 1; }
+         if (chipsInput !== activeNumpadInput && document.activeElement !== chipsInput) { chipsInput.value = p.finalChips !== undefined ? p.finalChips : 0; }
+         
          const entry = parseFloat(entryInput.value) || 0;
          const finalChips = parseFloat(chipsInput.value) || 0;
          const result = finalChips - (entry * STARTING_CHIPS);
          const pay = result / RATE;
+         
          row.querySelector('.result').value = formatNumber(result);
          row.querySelector('.pay').value = formatNumber(pay);
          totalPaySum += pay;
@@ -457,11 +498,15 @@
     };
 
     window.createRow = function(name = "", entry = 1, finalChips = 0) {
+      const isMobile = window.innerWidth <= 600;
+      const readOnlyAttr = isMobile ? 'readonly tabindex="-1"' : '';
+
       const tr = document.createElement('tr');
+      // inputmode="numeric" を追加してPCでの入力をスムーズに
       tr.innerHTML = `
         <td data-label="名前"><input type="text" class="name-input" placeholder="プレイヤー名" value="${name}" oninput="window.calculate()"></td>
-        <td data-label="エントリー"><input type="text" class="entry numpad-trigger" value="${entry}" readonly onclick="window.openCustomNumpad(this)"></td>
-        <td data-label="最終持ち点"><input type="text" class="final-chips numpad-trigger" value="${finalChips}" readonly onclick="window.openCustomNumpad(this)"></td>
+        <td data-label="エントリー"><input type="text" inputmode="numeric" class="entry numpad-trigger" value="${entry}" ${readOnlyAttr} oninput="window.calculate()" onclick="window.openCustomNumpad(this)"></td>
+        <td data-label="最終持ち点"><input type="text" inputmode="numeric" class="final-chips numpad-trigger" value="${finalChips}" ${readOnlyAttr} oninput="window.calculate()" onclick="window.openCustomNumpad(this)"></td>
         <td data-label="精算後 (点)"><input type="text" class="result readonly" value="-20,000" readonly tabindex="-1"></td>
         <td data-label="Pay"><input type="text" class="pay readonly" value="-2,000" readonly tabindex="-1"></td>
         <td data-label=""><button class="del-btn" onclick="window.removeRow(this)">✖ 削除</button></td>
@@ -469,10 +514,14 @@
       return tr;
     };
 
-    window.addRow = function() { document.getElementById('tableBody').appendChild(window.createRow()); window.calculate(); };
+    window.addRow = function() { 
+      document.getElementById('tableBody').appendChild(window.createRow()); 
+      window.dispatchEvent(new Event('resize')); 
+      window.calculate(); 
+    };
+    
     window.removeRow = function(btn) { btn.closest('tr').remove(); window.calculate(); };
 
-    // ★ ポップアップを閉じる関数
     window.closeSaveImageOverlay = function() {
       document.getElementById('saveImageOverlay').classList.remove('show');
     };
@@ -509,30 +558,22 @@
       btn.innerText = "⏳ 画像生成中..."; btn.disabled = true;
 
       const reportArea = document.getElementById('reportArea');
-      
-      // ★ デバイスを判別してレイアウトを切り替え ★
       const isMobile = window.innerWidth <= 600;
       if (isMobile) {
-        reportArea.className = 'layout-mobile'; // スマホ用（縦長・文字特大）
+        reportArea.className = 'layout-mobile'; 
       } else {
-        reportArea.className = 'layout-pc'; // PC用（横長）
+        reportArea.className = 'layout-pc'; 
       }
 
       prepareReportArea(playerData, currentPlayTime);
       
       setTimeout(() => {
         html2canvas(reportArea, { scale: 2, useCORS: true, backgroundColor: null }).then(canvas => {
-          // ★ JPEGに変換 ★
           const jpegUrl = canvas.toDataURL('image/jpeg', 0.9); 
-          
-          // ★ ポップアップに画像を設定して表示 ★
           const imgEl = document.getElementById('generatedImage');
           imgEl.src = jpegUrl;
           document.getElementById('saveImageOverlay').classList.add('show');
-          
           btn.innerText = "💾 画像を表示しました";
-
-          // GASへデータ送信（バックグラウンドで実行）
           sendToGAS(playerData, btn);
         });
       }, 500);
@@ -571,18 +612,18 @@
       const GAS_URL = "https://script.google.com/macros/s/AKfycbxijPOgmKGDL-UL5eAqOBKrxKVfPl4v6hsdLcWbiuwMrCWSPI5fqxu3qOmXIFTrMYCi5A/exec";
       fetch(GAS_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(playerData) })
       .then(() => {
-        // 画像生成とは別に、スプレッドシート記録完了のお知らせ
         console.log("GAS記録完了");
-        
         btn.innerText = "💾 画像を再表示"; btn.disabled = false;
-        
-        // 注意：ここでは自動リセットの確認は出さない（画像を保存する時間を与えるため）
-        // ユーザーが「閉じる」を押すか、手動でページを離れるまで状態を維持
       }).catch(error => {
         console.error("GASエラー", error);
         btn.innerText = "成績を確定（エラー）"; btn.disabled = false;
       });
     }
+    
+    // ロード時に一度resizeイベントを発火させてPC/スマホ判定を適用
+    window.addEventListener('DOMContentLoaded', () => {
+      window.dispatchEvent(new Event('resize'));
+    });
   </script>
 </body>
 </html>
