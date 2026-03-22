@@ -40,10 +40,8 @@
   input:focus { border-color: #d4af37; background-color: rgba(0, 0, 0, 0.9); box-shadow: 0 0 10px rgba(212, 175, 55, 0.3); }
   input[type="text"].name-input { text-align: left; }
   
-  /* iOSで数字キーボードの時、文字が小さくならないように */
   input[type="number"] { font-size: 18px; }
   
-  /* Kを無くした分、表示が崩れないようにフォントサイズを微調整 */
   .readonly { background-color: transparent; border: none; font-weight: bold; color: #bdc3c7; text-align: right; padding-right: 0; font-size: 15px; }
   
   /* 操作ボタン（シンプルに） */
@@ -74,35 +72,43 @@
 
   .draft-notice { font-size: 12px; color: #bdc3c7; margin-top: 15px; text-align: center; letter-spacing: 1px; }
 
-  /* 📱 スマホ向け（高密度・入力特化のリストビュー） */
+  /* 📱 スマホ向け（高密度・入力特化のリストビュー）のレイアウト崩れ修正 */
   @media screen and (max-width: 600px) {
-    body { padding: 10px 5px; }
-    .container { padding: 20px 10px; border-radius: 12px; }
-    h2 { font-size: 20px; letter-spacing: 2px; }
+    body { padding: 8px 4px; }
+    .container { padding: 15px 10px; border-radius: 12px; }
+    h2 { font-size: 18px; letter-spacing: 1px; margin-bottom: 15px; }
     
     table, thead, tbody, tr, td { display: block; width: 100%; }
     thead { display: none; }
     
-    /* 1人分のブロックをカード風に */
-    tr { background: rgba(255, 255, 255, 0.04); margin-bottom: 15px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.08); padding: 15px 15px 50px 15px; position: relative; box-shadow: 0 5px 15px rgba(0,0,0,0.4); }
+    /* 1人分のカードブロック */
+    tr { background: rgba(255, 255, 255, 0.04); margin-bottom: 12px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.08); padding: 10px 10px 45px 10px; position: relative; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
     
-    td { padding: 6px 0; border: none; display: flex; align-items: center; justify-content: space-between; }
-    td::before { content: attr(data-label); color: #bdc3c7; font-size: 12px; width: 35%; font-weight: bold; }
+    /* セルの横並びが絶対に崩れないように flex-wrap: nowrap を設定 */
+    td { padding: 6px 0; border: none; display: flex; align-items: center; justify-content: space-between; flex-wrap: nowrap; }
     
-    input { width: 65%; padding: 12px; font-size: 18px; border-color: #666; }
+    /* 左側のラベル部分（文字が長すぎたら省略する） */
+    td::before { content: attr(data-label); color: #bdc3c7; font-size: 12px; width: 38%; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 5px; }
+    
+    /* 右側の入力欄（余白を削って文字サイズを少し小さくし、桁数を収める） */
+    input { width: 62%; padding: 8px 10px; font-size: 16px; border-color: #666; margin: 0; }
     input[type="text"].name-input { text-align: left; }
     
-    /* 桁数が増えても収まるようにフォントサイズを微調整 */
-    .readonly { text-align: right; font-size: 15px; padding-right: 5px; color: #fff; }
+    /* 読み取り専用の数字（-20,000など）も枠内に収める */
+    .readonly { width: 62%; text-align: right; font-size: 15px; padding: 6px 5px; color: #fff; }
 
-    td:last-child { position: absolute; bottom: 12px; right: 15px; padding: 0; display: block; width: auto; }
+    /* 削除ボタンの配置 */
+    td:last-child { position: absolute; bottom: 10px; right: 10px; padding: 0; display: block; width: auto; }
     td:last-child::before { display: none; }
-    .del-btn { padding: 6px 12px; font-size: 12px; border-radius: 20px; }
+    .del-btn { padding: 6px 15px; font-size: 12px; border-radius: 20px; }
     
-    .timer-display-small { font-size: 30px; }
-    .timer-btns .t-btn { padding: 12px 5px; font-size: 12px; }
-    .summary { flex-direction: column; align-items: center; gap: 10px; font-size: 18px; padding: 15px; }
-    .save-btn { font-size: 16px; padding: 16px; }
+    .timer-display-small { font-size: 28px; }
+    .timer-btns .t-btn { padding: 10px 5px; font-size: 12px; }
+    
+    /* サマリー（合計金額）もスマホ用にスッキリ調整 */
+    .summary { flex-direction: column; align-items: flex-start; gap: 8px; font-size: 16px; padding: 12px; }
+    #totalPay { font-size: 20px !important; }
+    .save-btn { font-size: 16px; padding: 14px; }
   }
 
   /* ★★★ Geminiオリジナル：画像生成用エリア（画面外に配置） ★★★ */
@@ -178,7 +184,7 @@
 <body>
 
   <div class="container">
-    <h2>チップ精算</h2>
+    <h2>チップ清算</h2>
 
     <div class="timer-control">
       <div class="timer-control-title">⏱️ プレイ時間タイマー (全画面連動)</div>
@@ -330,7 +336,7 @@
     const RATE = 10;
     const INITIAL_ROWS = 5;
 
-    // ★ 数字をカンマ区切りにする関数（共通で使用）
+    // ★ 数字をカンマ区切りにする関数
     function formatNumber(num) {
       return num.toLocaleString();
     }
@@ -348,7 +354,6 @@
         const result = finalChips - (entry * STARTING_CHIPS);
         const pay = result / RATE;
 
-        // ★ Kを使わず、カンマ区切りの数字をセット
         row.querySelector('.result').value = formatNumber(result);
         row.querySelector('.pay').value = formatNumber(pay);
 
@@ -356,7 +361,6 @@
         draftData.push({ name: row.querySelector('.name-input').value, entry, finalChips });
       });
 
-      // ★ 合計値もカンマ区切りで表示
       document.getElementById('totalPay').innerText = formatNumber(totalPaySum);
       const msg = document.getElementById('statusMessage');
       if (totalPaySum === 0) {
@@ -371,7 +375,6 @@
       set(ref(db, 'pokerSession/players'), draftData);
     };
 
-    // ★ 初期値の -20K や -2K も通常の数字に変更
     window.createRow = function(name = "", entry = 1, finalChips = 0) {
       const tr = document.createElement('tr');
       tr.innerHTML = `
@@ -482,16 +485,11 @@
 
     // 画像生成エリアにデータを書き込む関数
     function prepareReportArea(data, playTime) {
-      // 日付
       const now = new Date();
       document.getElementById('reportDate').innerText = now.getFullYear() + "年" + (now.getMonth() + 1) + "月" + now.getDate() + "日";
-      // タイム
       document.getElementById('reportTime').innerText = playTime;
 
-      // ランキング順（Payが多い順）に並べ替え
       const sortedData = [...data].sort((a, b) => b.pay - a.pay);
-
-      // テーブルボディ生成
       const tbody = document.getElementById('reportTableBody');
       tbody.innerHTML = '';
       let totalPay = 0;
@@ -499,7 +497,6 @@
       sortedData.forEach((player, index) => {
         totalPay += player.pay;
         const tr = document.createElement('tr');
-        
         const payClass = player.pay > 0 ? 'report-plus' : (player.pay < 0 ? 'report-minus' : '');
         const paySign = player.pay > 0 ? '+' : '';
 
@@ -514,7 +511,6 @@
         tbody.appendChild(tr);
       });
 
-      // 合計Pay
       document.getElementById('reportTotalPay').innerText = formatNumber(totalPay);
     }
 
@@ -527,13 +523,11 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(playerData)
       }).then(() => {
-        // GAS送信完了後の処理
         alert("✨ 成績をスプレッドシートに記録しました。\n本日もお疲れ様でした！");
         btn.innerText = "💾 成績を確定・記録する";
         btn.disabled = false;
         
         if(confirm("画面とタイマーをリセットして次のゲーム（または次回）の準備をしますか？")) {
-          // リセット処理
           localStorage.removeItem('pokerDraft');
           set(ref(db, 'pokerSession/players'), []); 
           let newState = { running: false, elapsedSeconds: 0, lastUpdate: Date.now() };
