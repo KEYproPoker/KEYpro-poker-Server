@@ -6,7 +6,7 @@
 <title>チップ精算 - KEYpro poker Server</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
-  /* 全体の設定（横揺れを完全にロック） */
+  /* 全体の設定 */
   *, *::before, *::after { box-sizing: border-box; }
   html, body { max-width: 100vw; overflow-x: hidden; scroll-behavior: smooth; }
 
@@ -36,7 +36,6 @@
   input:focus { border-color: #d4af37; background-color: rgba(0, 0, 0, 0.9); box-shadow: 0 0 10px rgba(212, 175, 55, 0.3); }
   input[type="text"].name-input { text-align: left; }
   
-  /* PC時はカーソルを表示、スマホ時は下のメディアクエリで透明に */
   input.numpad-trigger { font-size: 20px; font-weight: bold; }
 
   .readonly { background-color: transparent; border: none; font-weight: bold; color: #bdc3c7; text-align: right; padding-right: 0; font-size: 15px; }
@@ -140,7 +139,6 @@
     td:not([data-label="名前"]) input { width: 60%; flex-grow: 1; padding: 10px; text-align: right; min-width: 0; }
     td:not([data-label="名前"]) .readonly { width: 60%; text-align: right; font-size: 16px; color: #fff; padding: 8px 5px; font-weight: bold; }
 
-    /* スマホの時だけカーソルを見えなくし、タップ感を持たせる */
     input.numpad-trigger { cursor: pointer; caret-color: transparent; }
 
     td:last-child { position: absolute; bottom: 12px; right: 15px; padding: 0; display: block; width: auto; border: none; }
@@ -357,14 +355,29 @@
     };
 
     // -------------------------
-    // カスタム電卓（テンキー）処理
+    // カスタム電卓（スマホ用） ＆ PCフォーカス処理
     // -------------------------
     let activeNumpadInput = null;
     let activeNumpadOriginal = "";
 
+    // ★ PC用のフォーカス（オートクリア）処理
+    window.handleFocus = function(el) {
+      if (window.innerWidth <= 600) return; // スマホの場合はカスタム電卓に任せる
+      el.dataset.orig = el.value; // 元の数字を保存
+      el.value = ""; // クリア
+    };
+
+    // ★ PC用のフォーカス外れ（オートリストア）処理
+    window.handleBlur = function(el) {
+      if (window.innerWidth <= 600) return;
+      if (el.value === "") {
+        el.value = el.dataset.orig || "0"; // 空なら復元
+      }
+      window.calculate();
+    };
+
     window.openCustomNumpad = function(el) {
-      // ★ PC（画面幅600pxより大きい）場合は専用テンキーを開かず、標準キーボードを使わせる
-      if (window.innerWidth > 600) return;
+      if (window.innerWidth > 600) return; // PCは無効
 
       if (activeNumpadInput) { window.closeCustomNumpad(); }
       activeNumpadInput = el;
@@ -374,10 +387,15 @@
       document.getElementById('numpadOverlay').classList.add('show');
       document.getElementById('customNumpad').classList.add('show');
       
-      document.body.style.paddingBottom = "350px"; 
+      // ★ 確実に隠れないように大きな余白を取り、画面の上部20%の位置にスクロールさせる
+      document.body.style.paddingBottom = "55vh"; 
       setTimeout(() => {
-        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 100);
+        const rect = el.getBoundingClientRect();
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        const targetY = rect.top + scrollTop - (window.innerHeight * 0.2); // 上から20%の位置
+        window.scrollTo({ top: targetY, behavior: 'smooth' });
+      }, 300); // テンキーが上がり切るのを待つ
+      
       window.calculate(); 
     };
 
@@ -396,7 +414,6 @@
     window.numpadDel = function() { if (activeNumpadInput) { activeNumpadInput.value = activeNumpadInput.value.slice(0, -1); window.calculate(); } };
     window.numpadClear = function() { if (activeNumpadInput) { activeNumpadInput.value = ""; window.calculate(); } };
 
-    // ★ 画面サイズが変わった時（PC・スマホの切り替え時）の保護処理
     window.addEventListener('resize', () => {
       const isMobile = window.innerWidth <= 600;
       document.querySelectorAll('.numpad-trigger').forEach(el => {
@@ -408,7 +425,6 @@
           el.removeAttribute('tabindex');
         }
       });
-      // PCサイズになったらテンキーを自動で閉じる
       if (!isMobile && activeNumpadInput) {
         window.closeCustomNumpad();
       }
@@ -432,7 +448,6 @@
         tableBody.innerHTML = '';
         for (let i = 0; i < INITIAL_ROWS; i++) { tableBody.appendChild(window.createRow()); }
         isFirstLoad = false;
-        // 初期状態のreadonly属性を設定
         window.dispatchEvent(new Event('resize'));
         window.calculate(); 
         return;
@@ -442,7 +457,7 @@
 
       while(tableBody.children.length < data.length) { 
         tableBody.appendChild(window.createRow()); 
-        window.dispatchEvent(new Event('resize')); // 行追加時にreadonly設定を反映
+        window.dispatchEvent(new Event('resize')); 
       }
       while(tableBody.children.length > data.length) { tableBody.lastChild.remove(); }
 
@@ -453,7 +468,7 @@
          const entryInput = row.querySelector('.entry');
          const chipsInput = row.querySelector('.final-chips');
          
-         // ★ PCで自分がタイピング中（フォーカスが当たっている）のセルは上書きしない！
+         // 自分が入力中（フォーカスが当たっている）のセルは同期で上書きしない
          if (document.activeElement !== nameInput) { nameInput.value = p.name || ""; }
          if (entryInput !== activeNumpadInput && document.activeElement !== entryInput) { entryInput.value = p.entry !== undefined ? p.entry : 1; }
          if (chipsInput !== activeNumpadInput && document.activeElement !== chipsInput) { chipsInput.value = p.finalChips !== undefined ? p.finalChips : 0; }
@@ -502,11 +517,11 @@
       const readOnlyAttr = isMobile ? 'readonly tabindex="-1"' : '';
 
       const tr = document.createElement('tr');
-      // inputmode="numeric" を追加してPCでの入力をスムーズに
+      // ★ PC用に onfocus と onblur を追加
       tr.innerHTML = `
         <td data-label="名前"><input type="text" class="name-input" placeholder="プレイヤー名" value="${name}" oninput="window.calculate()"></td>
-        <td data-label="エントリー"><input type="text" inputmode="numeric" class="entry numpad-trigger" value="${entry}" ${readOnlyAttr} oninput="window.calculate()" onclick="window.openCustomNumpad(this)"></td>
-        <td data-label="最終持ち点"><input type="text" inputmode="numeric" class="final-chips numpad-trigger" value="${finalChips}" ${readOnlyAttr} oninput="window.calculate()" onclick="window.openCustomNumpad(this)"></td>
+        <td data-label="エントリー"><input type="text" inputmode="numeric" class="entry numpad-trigger" value="${entry}" ${readOnlyAttr} oninput="window.calculate()" onclick="window.openCustomNumpad(this)" onfocus="window.handleFocus(this)" onblur="window.handleBlur(this)"></td>
+        <td data-label="最終持ち点"><input type="text" inputmode="numeric" class="final-chips numpad-trigger" value="${finalChips}" ${readOnlyAttr} oninput="window.calculate()" onclick="window.openCustomNumpad(this)" onfocus="window.handleFocus(this)" onblur="window.handleBlur(this)"></td>
         <td data-label="精算後 (点)"><input type="text" class="result readonly" value="-20,000" readonly tabindex="-1"></td>
         <td data-label="Pay"><input type="text" class="pay readonly" value="-2,000" readonly tabindex="-1"></td>
         <td data-label=""><button class="del-btn" onclick="window.removeRow(this)">✖ 削除</button></td>
@@ -620,7 +635,6 @@
       });
     }
     
-    // ロード時に一度resizeイベントを発火させてPC/スマホ判定を適用
     window.addEventListener('DOMContentLoaded', () => {
       window.dispatchEvent(new Event('resize'));
     });
