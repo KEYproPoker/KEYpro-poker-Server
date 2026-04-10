@@ -2,431 +2,143 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>HOW TO PLAY - KEYpro poker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@900&display=swap" rel="stylesheet">
 <style>
+  /* 全体の設定 */
   *, *::before, *::after { box-sizing: border-box; }
+  html, body { max-width: 100vw; overflow-x: hidden; scroll-behavior: smooth; }
 
-  body, button, h1, h2, h3, p, div, li, span { font-family: 'KEYpro', sans-serif; }
-  body { background: radial-gradient(circle at center, #1a5c38 0%, #0a2e1c 100%); color: #ffffff; margin: 0; min-height: 100vh; padding: 20px; overflow-x: hidden; }
+  body { background: radial-gradient(circle at center, #1a5c38 0%, #0a2e1c 100%); color: #ffffff; text-align: center; margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; font-family: 'KEYpro', sans-serif; }
   
-  .container { max-width: 850px; margin: 0 auto; background: rgba(0, 0, 0, 0.75); border-radius: 12px; border: 1px solid #d4af37; box-shadow: 0 15px 50px rgba(0,0,0,0.8); padding: 40px; }
+  /* ★ PCフルスクリーン対応：幅と高さを限界まで拡大 */
+  .container { display: flex; flex-direction: column; width: 96vw; max-width: 1400px; height: 94vh; min-height: 600px; background-color: rgba(0, 0, 0, 0.8); border-radius: 16px; border: 2px solid #d4af37; box-shadow: 0 15px 50px rgba(0,0,0,0.9); overflow: hidden; padding: 40px; position: relative; }
+
+  /* ロゴフォント */
+  h1 { font-family: 'Work Sans', sans-serif; color: #d4af37; font-size: clamp(40px, 4vw, 64px); margin: 0 0 5px 0; text-shadow: 0 0 15px rgba(212, 175, 55, 0.4); letter-spacing: -3px; font-weight: 900; }
+  h1 span { font-family: 'KEYpro', sans-serif; color: #d4af37; font-size: clamp(12px, 1vw, 16px); margin-left: 10px; font-weight: normal; text-transform: uppercase; letter-spacing: 4px; vertical-align: middle; }
+
+  p.subtitle { font-size: clamp(12px, 1vw, 16px); margin-bottom: 20px; color: #7f8fa6; letter-spacing: 3px; text-transform: uppercase; }
+
+  /* 共通タイトルデザイン */
+  .board-title { color: #d4af37; font-size: clamp(18px, 1.5vw, 24px); letter-spacing: 4px; font-weight: bold; text-align: left; border-bottom: 1px solid rgba(212, 175, 55, 0.4); padding-bottom: 10px; text-transform: uppercase; display: flex; align-items: center; gap: 10px; text-shadow: 0 0 10px rgba(212, 175, 55, 0.4); margin-bottom: 20px; flex-shrink: 0; }
+  .board-title::before { content: ''; display: inline-block; width: 6px; height: 20px; background-color: #d4af37; box-shadow: 0 0 10px #d4af37; }
+
+  /* ルールコンテンツ表示エリア */
+  .rules-content { flex-grow: 1; overflow-y: auto; padding-right: 15px; margin-bottom: 20px; text-align: left; }
+  .rules-content::-webkit-scrollbar { width: 6px; }
+  .rules-content::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 4px; }
+  .rules-content::-webkit-scrollbar-thumb { background: #d4af37; border-radius: 4px; }
+
+  /* ★ PC大画面用にカードをグリッド配置 */
+  .rules-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; align-items: start; }
+
+  /* ルールごとのカードデザイン */
+  .rule-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-left: 4px solid #d4af37; padding: 25px; border-radius: 8px; transition: all 0.3s; }
+  .rule-card:hover { background: rgba(255,255,255,0.06); border-color: rgba(212, 175, 55, 0.4); box-shadow: 0 10px 20px rgba(0,0,0,0.5); transform: translateY(-2px); }
   
-  .header { text-align: center; margin-bottom: 40px; border-bottom: 1px solid rgba(212, 175, 55, 0.3); padding-bottom: 20px; }
-  h1 { color: #d4af37; font-size: 36px; margin: 0 0 10px 0; text-shadow: 0 0 15px rgba(212, 175, 55, 0.4); letter-spacing: 4px; }
-  .subtitle { font-size: 14px; color: #7f8fa6; letter-spacing: 3px; text-transform: uppercase; margin: 0; }
-
-  .section { margin-bottom: 40px; }
-  .section h2 { color: #2ed573; font-size: 22px; border-left: 5px solid #2ed573; padding-left: 15px; margin-bottom: 25px; letter-spacing: 2px; text-shadow: 0 0 10px rgba(46, 213, 115, 0.3); }
+  .rule-card h3 { color: #d4af37; font-size: clamp(16px, 1.5vw, 22px); margin-top: 0; margin-bottom: 15px; letter-spacing: 2px; border-bottom: 1px dashed rgba(212, 175, 55, 0.3); padding-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .rule-card p { font-size: clamp(14px, 1.2vw, 16px); color: #dcdde1; line-height: 1.8; margin-bottom: 10px; letter-spacing: 1px; }
+  .rule-card p:last-child { margin-bottom: 0; }
   
-  .info-block { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); padding: 25px; border-radius: 8px; margin-bottom: 20px; line-height: 1.6; }
-  .info-block p { color: #dcdde1; font-size: 15px; margin: 0; }
+  .highlight { color: #2ecc71; font-weight: bold; font-size: 110%; }
+  .warning { color: #e74c3c; font-weight: bold; font-size: 110%; }
 
-  .action-list { padding-left: 20px; color: #dcdde1; font-size: 15px; margin: 0; }
-  .action-list li { margin-bottom: 15px; }
-  .action-list li:last-child { margin-bottom: 0; }
-  .action-list li strong { color: #ff4757; margin-right: 5px; font-size: 16px; letter-spacing: 1px; text-shadow: 0 0 5px rgba(255, 71, 87, 0.3); }
+  /* 左上のダッシュボードに戻るボタン */
+  .discreet-next-btn {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: rgba(0, 0, 0, 0.5);
+    color: #7f8fa6;
+    border: 1px solid rgba(127, 140, 141, 0.5);
+    padding: 10px 24px;
+    font-size: 12px;
+    border-radius: 50px;
+    text-decoration: none;
+    letter-spacing: 2px;
+    transition: all 0.3s ease;
+    font-weight: bold;
+    z-index: 50;
+  }
+  .discreet-next-btn:hover { background: #d4af37; color: #000; border-color: #d4af37; box-shadow: 0 0 15px rgba(212, 175, 55, 0.5); }
 
-  /* ----------------------------------------------------------------
-     ★ カードデザイン（横一列・トランプ準拠・重厚な絵札対応）
-  ---------------------------------------------------------------- */
-  .hand-rank-block { margin-bottom: 35px; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 30px; }
-  .hand-rank-block:last-child { margin-bottom: 0; border-bottom: none; padding-bottom: 0; }
-  
-  .rank-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; }
-  .rank-name { font-size: 20px; font-weight: bold; color: #ffffff; letter-spacing: 1px; text-shadow: 0 0 10px rgba(255,255,255,0.2); }
-  .rank-desc { font-size: 14px; color: #a4b0be; letter-spacing: 1px; }
-
-  /* 横に並べる（重なりのない、視認性MAXのレイアウト） */
-  .hand-display { display: flex; justify-content: center; gap: 8px; margin: 15px 0; perspective: 1000px; }
-
-  /* カード1枚の基本デザイン */
-  .card-visual { width: 75px; height: 110px; background: #f1f2f6; border-radius: 6px; border: 2px solid #d4af37; position: relative; display: flex; justify-content: center; align-items: center; box-shadow: 0 5px 15px rgba(0,0,0,0.4); transition: transform 0.2s; overflow: hidden; }
-  .card-visual:hover { transform: translateY(-5px); }
-
-  /* 左上の数字とマーク（インデックス）：トランプ準拠で見やすく配置 */
-  .card-corner { position: absolute; top: 5px; left: 5px; font-family: 'Courier New', monospace; font-weight: 900; font-size: 18px; line-height: 0.9; text-align: center; }
-  .card-corner .suit { font-size: 14px; display: block; margin-top: 2px; }
-  
-  /* 中央の大きなマーク */
-  .card-center { font-size: 38px; opacity: 0.85; line-height: 1; }
-
-  /* 色分け */
-  .suit-red { color: #ff4757; }
-  .suit-black { color: #1e272e; }
-
-  /* ★ J, Q, K 用の重厚な絵札デザイン（チェス駒＋幾何学的な装飾フレーム） */
-  /* 画像1.pngの重厚さに合わせ、より伝統的でプロフェッショナルなデザインに */
-  .face-card .card-center { width: 65%; height: 60%; border: 2px solid currentColor; display: flex; align-items: center; justify-content: center; font-size: 26px; /* トランプの絵札のような幾何学的で重厚なラインテクスチャ */ background: repeating-linear-gradient(45deg, transparent, transparent 4px, rgba(0,0,0,0.05) 4px, rgba(0,0,0,0.05) 8px); }
-
-  /* ランクごとのネオンエフェクト（独立して綺麗に光る） */
-  .hand-royal .card-visual { border-color: #f1c40f; box-shadow: 0 0 20px rgba(241, 196, 15, 0.6); }
-  .hand-straight-flush .card-visual { border-color: #00d2d3; box-shadow: 0 0 20px rgba(0, 210, 211, 0.6); }
-  .hand-quads .card-visual { border-color: #2ed573; box-shadow: 0 0 15px rgba(46, 213, 115, 0.5); }
-  .hand-fullhouse .card-visual { border-color: #9b59b6; box-shadow: 0 0 15px rgba(155, 89, 182, 0.5); }
-  .hand-flush .card-visual { border-color: #ffa502; box-shadow: 0 0 15px rgba(255, 165, 2, 0.5); }
-  .hand-straight .card-visual { border-color: #ff4757; box-shadow: 0 0 15px rgba(255, 71, 87, 0.5); }
-  .hand-three .card-visual { border-color: #eccc68; box-shadow: 0 0 12px rgba(236, 204, 104, 0.4); }
-  .hand-twopair .card-visual { border-color: rgba(46, 213, 115, 0.6); }
-  .hand-onepair .card-visual { border-color: rgba(255, 71, 87, 0.6); }
-  .hand-highcard .card-visual { border-color: #7f8fa6; }
-
-  /* 戻るボタン */
-  .btn-back { display: block; width: 100%; max-width: 300px; margin: 50px auto 0; padding: 18px; background: transparent; color: #ffffff; font-size: 16px; font-weight: bold; text-align: center; text-decoration: none; border: 1px solid rgba(255,255,255,0.3); border-radius: 50px; transition: all 0.3s; letter-spacing: 2px; text-transform: uppercase; }
-  .btn-back:hover { background: #ffffff; color: #000; box-shadow: 0 0 20px rgba(255, 255, 255, 0.4); }
-
-  /* 📱 スマホ用：はみ出さずに綺麗に横並びになるよう調整 */
-  @media screen and (max-width: 600px) {
-    body { padding: 10px 5px; }
-    .container { padding: 20px 15px; }
-    h1 { font-size: 28px; letter-spacing: 2px; }
-    .header { margin-bottom: 30px; }
+  /* 📱 スマホ用 */
+  @media screen and (max-width: 900px) {
+    body { padding: 10px; display: block; overflow-x: hidden; }
+    .container { padding: 60px 15px 25px 15px; width: 100%; height: auto; min-height: auto; border-radius: 8px; border-width: 1px; display: block; }
     
-    .section h2 { font-size: 18px; margin-bottom: 15px; }
-    .info-block { padding: 15px; }
-    .action-list { font-size: 14px; }
-    .action-list li { margin-bottom: 12px; }
-
-    .rank-header { flex-direction: column; align-items: flex-start; gap: 5px; margin-bottom: 10px; }
-    .rank-name { font-size: 16px; }
-    .rank-desc { font-size: 12px; }
-
-    .hand-display { gap: 4px; margin: 10px 0; }
-    .card-visual { width: calc(20% - 4px); max-width: 55px; height: 80px; border-width: 1px; }
+    h1 { font-size: 36px; letter-spacing: -2px; }
+    h1 span { font-size: 12px; }
     
-    .card-corner { font-size: 14px; top: 3px; left: 4px; }
-    .card-corner .suit { font-size: 12px; }
-    .card-center { font-size: 28px; }
+    .board-title { font-size: 18px; margin-right: -4px; }
     
-    /* スマホでの絵札サイズ */
-    .face-card .card-center { font-size: 20px; width: 70%; height: 60%; }
+    .rules-content { padding-right: 0; }
+    .rules-grid { grid-template-columns: 1fr; gap: 15px; }
+    
+    .rule-card { padding: 15px; border-left-width: 3px; }
+    .rule-card h3 { font-size: 16px; margin-bottom: 10px; padding-bottom: 8px; }
+    .rule-card p { font-size: 13px; line-height: 1.6; }
+    
+    .discreet-next-btn { top: 15px; left: 15px; padding: 8px 16px; font-size: 10px; }
   }
 </style>
 </head>
 <body>
 
   <div class="container">
-    <div class="header">
-      <h1>HOW TO PLAY</h1>
-      <p class="subtitle">初心者向けルール ＆ ハンドランクガイド</p>
-    </div>
+    <a href="index.html" class="discreet-next-btn">◀ DASHBOARD</a>
 
-    <div class="section">
-      <h2>1. 基本アクション</h2>
-      <div class="info-block">
-        <ul class="action-list">
-          <li><strong>チェック (Check)</strong><br>誰もチップを賭けていない時、自分も出さずに順番をパスします。</li>
-          <li><strong>ベット (Bet)</strong><br>そのラウンドで一番最初にチップを賭けるアクションです。</li>
-          <li><strong>コール (Call)</strong><br>前の人と同じ額のチップを出して、勝負を続行します。</li>
-          <li><strong>レイズ (Raise)</strong><br>前の人の賭け額に上乗せして、さらにプレッシャーをかけます。</li>
-          <li><strong>フォールド (Fold)</strong><br>勝負を諦めて降ります。（今まで出したチップは没収されます）</li>
-        </ul>
-      </div>
-    </div>
+    <h1>KEYpro<span>poker</span></h1>
+    <p class="subtitle">Official Rules & System</p>
 
-    <div class="section">
-      <h2>2. よく使う専門用語</h2>
-      <div class="info-block">
-        <ul class="action-list">
-          <li><strong>ポット (Pot)</strong><br>テーブルの中央に集まった賭けチップの総額。ゲームの勝者がこれをすべて獲得します。</li>
-          <li><strong>ブラインド (Blinds)</strong><br>ゲームを進行させるため、毎ゲームごとに指定された2名が強制的に支払う参加費（SB / BB）のことです。</li>
-          <li><strong>コミュニティカード</strong><br>全員が共通で使える、テーブル中央の5枚のカード。最初の3枚を「フロップ」、4枚目を「ターン」、最後の1枚を「リバー」と呼びます。</li>
-          <li><strong>オールイン (All-in)</strong><br>自分が持っているチップを「すべて」賭ける、究極のアクションです。</li>
-          <li><strong>ショーダウン (Showdown)</strong><br>最後の賭けが終わった後、残ったプレイヤー同士で手札を見せ合い、勝敗を決めることです。</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="section">
-      <h2>3. 役の強さ（ハンドランク）</h2>
-      <div class="info-block" style="background: transparent; border: none; padding: 0;">
-        <p style="text-align: center; color: #a4b0be; font-size: 14px; margin-bottom: 25px;">※上が一番強く、下が一番弱いです。「手札2枚＋場の5枚」の中から、最強の5枚の組み合わせを作ります。</p>
-
-        <div class="hand-rank-block hand-royal">
-          <div class="rank-header">
-            <span class="rank-name">ロイヤルストレートフラッシュ</span>
-            <span class="rank-desc">最強。同スートのT,J,Q,K,A</span>
-          </div>
-          <div class="hand-display">
-            <div class="card-visual suit-black">
-              <div class="card-corner">10<br><span class="suit">♠</span></div>
-              <div class="card-center">♠</div>
-            </div>
-            <div class="card-visual suit-black face-card">
-              <div class="card-corner">J<br><span class="suit">♠</span></div>
-              <div class="card-center">♞</div>
-            </div>
-            <div class="card-visual suit-black face-card">
-              <div class="card-corner">Q<br><span class="suit">♠</span></div>
-              <div class="card-center">♛</div>
-            </div>
-            <div class="card-visual suit-black face-card">
-              <div class="card-corner">K<br><span class="suit">♠</span></div>
-              <div class="card-center">♚</div>
-            </div>
-            <div class="card-visual suit-black">
-              <div class="card-corner">A<br><span class="suit">♠</span></div>
-              <div class="card-center">♠</div>
-            </div>
-          </div>
+    <div class="board-title">HOW TO PLAY</div>
+    
+    <div class="rules-content">
+      <div class="rules-grid">
+        
+        <div class="rule-card">
+          <h3>🃏 1. 基本ルール設定</h3>
+          <p>・スタートチップ: <span class="highlight">20,000点</span></p>
+          <p>・精算レート: 1pt = <span class="highlight">10</span></p>
+          <p>終了時の持ち点から、エントリー分の点数（20,000点 × 回数）を引いたスコアが最終結果となります。</p>
         </div>
 
-        <div class="hand-rank-block hand-straight-flush">
-          <div class="rank-header">
-            <span class="rank-name">ストレートフラッシュ</span>
-            <span class="rank-desc">同スートで数字が連続</span>
-          </div>
-          <div class="hand-display">
-            <div class="card-visual suit-red">
-              <div class="card-corner">5<br><span class="suit">♥</span></div>
-              <div class="card-center">♥</div>
-            </div>
-            <div class="card-visual suit-red">
-              <div class="card-corner">6<br><span class="suit">♥</span></div>
-              <div class="card-center">♥</div>
-            </div>
-            <div class="card-visual suit-red">
-              <div class="card-corner">7<br><span class="suit">♥</span></div>
-              <div class="card-center">♥</div>
-            </div>
-            <div class="card-visual suit-red">
-              <div class="card-corner">8<br><span class="suit">♥</span></div>
-              <div class="card-center">♥</div>
-            </div>
-            <div class="card-visual suit-red">
-              <div class="card-corner">9<br><span class="suit">♥</span></div>
-              <div class="card-center">♥</div>
-            </div>
-          </div>
+        <div class="rule-card">
+          <h3>🔄 2. リエントリーについて</h3>
+          <p>チップが全損した場合、<span class="highlight">何度でもリエントリーが可能</span>です。</p>
+          <p>リエントリーを行ったプレイヤーは、ダッシュボードの「RE-ENTRY RANKING（地獄のワーストランキング）」に表示されます。回数が多いほど上位（ワースト）に表示されます。</p>
         </div>
 
-        <div class="hand-rank-block hand-quads">
-          <div class="rank-header">
-            <span class="rank-name">フォーカード</span>
-            <span class="rank-desc">同じ数字が4枚</span>
-          </div>
-          <div class="hand-display">
-            <div class="card-visual suit-black">
-              <div class="card-corner">7<br><span class="suit">♣</span></div>
-              <div class="card-center">♣</div>
-            </div>
-            <div class="card-visual suit-red">
-              <div class="card-corner">7<br><span class="suit">♦</span></div>
-              <div class="card-center">♦</div>
-            </div>
-            <div class="card-visual suit-red">
-              <div class="card-corner">7<br><span class="suit">♥</span></div>
-              <div class="card-center">♥</div>
-            </div>
-            <div class="card-visual suit-black">
-              <div class="card-corner">7<br><span class="suit">♠</span></div>
-              <div class="card-center">♠</div>
-            </div>
-            <div class="card-visual suit-red" style="opacity:0.6; border-color:#555;"><div class="card-corner">2<br><span class="suit">♦</span></div><div class="card-center">♦</div></div>
-          </div>
+        <div class="rule-card">
+          <h3>💰 3. チップの精算方法</h3>
+          <p>ゲーム終了後、管理者が「⚙（設定アイコン）」からパスワードを入力し、精算画面を開きます。</p>
+          <p>「最終持ち点」と「エントリー回数」を入力すると、システムが自動でプラス/マイナスを計算します。合計のズレが<span class="highlight">「0 (誤差なし)」</span>になったことを確認してから記録してください。</p>
         </div>
 
-        <div class="hand-rank-block hand-fullhouse">
-          <div class="rank-header">
-            <span class="rank-name">フルハウス</span>
-            <span class="rank-desc">スリーカード + ワンペア</span>
-          </div>
-          <div class="hand-display">
-            <div class="card-visual suit-black">
-              <div class="card-corner">A<br><span class="suit">♣</span></div>
-              <div class="card-center">♣</div>
-            </div>
-            <div class="card-visual suit-red">
-              <div class="card-corner">A<br><span class="suit">♥</span></div>
-              <div class="card-center">♥</div>
-            </div>
-            <div class="card-visual suit-black">
-              <div class="card-corner">A<br><span class="suit">♠</span></div>
-              <div class="card-center">♠</div>
-            </div>
-            <div class="card-visual suit-red">
-              <div class="card-corner">8<br><span class="suit">♦</span></div>
-              <div class="card-center">♦</div>
-            </div>
-            <div class="card-visual suit-black">
-              <div class="card-corner">8<br><span class="suit">♠</span></div>
-              <div class="card-center">♠</div>
-            </div>
-          </div>
+        <div class="rule-card">
+          <h3>👑 4. HALL OF FAME (歴代ランキング)</h3>
+          <p>精算画面で「成績を確定して記録」を実行すると、そのゲームの成績がサーバーのデータベースに永久保存されます。</p>
+          <p>歴代の累計成績は「HALL OF FAME」画面で確認でき、歴代トップ3のプレイヤーが現在のゲームに参加すると、ダッシュボードの名前の横に<span class="highlight">王冠マーク</span>が輝きます。</p>
         </div>
 
-        <div class="hand-rank-block hand-flush">
-          <div class="rank-header">
-            <span class="rank-name">フラッシュ</span>
-            <span class="rank-desc">5枚すべてが同じスート</span>
-          </div>
-          <div class="hand-display">
-            <div class="card-visual suit-red">
-              <div class="card-corner">4<br><span class="suit">♦</span></div>
-              <div class="card-center">♦</div>
-            </div>
-            <div class="card-visual suit-red">
-              <div class="card-corner">6<br><span class="suit">♦</span></div>
-              <div class="card-center">♦</div>
-            </div>
-            <div class="card-visual suit-red">
-              <div class="card-corner">9<br><span class="suit">♦</span></div>
-              <div class="card-center">♦</div>
-            </div>
-            <div class="card-visual suit-red face-card">
-              <div class="card-corner">J<br><span class="suit">♦</span></div>
-              <div class="card-center">♞</div>
-            </div>
-            <div class="card-visual suit-red face-card">
-              <div class="card-corner">K<br><span class="suit">♦</span></div>
-              <div class="card-center">♚</div>
-            </div>
-          </div>
+        <div class="rule-card">
+          <h3>📸 5. レポート画像の保存</h3>
+          <p>成績を確定すると、その日のセッションの「レポート画像」が自動生成されます。</p>
+          <p>スマホの場合は<span class="warning">画像を指で長押し</span>して「写真に追加」や「画像を保存」を選び、デバイスに保存してください。PCの場合は右クリックから保存が可能です。</p>
         </div>
 
-        <div class="hand-rank-block hand-straight">
-          <div class="rank-header">
-            <span class="rank-name">ストレート</span>
-            <span class="rank-desc">5枚の数字が連続（スートは不問）</span>
-          </div>
-          <div class="hand-display">
-            <div class="card-visual suit-black">
-              <div class="card-corner">7<br><span class="suit">♣</span></div>
-              <div class="card-center">♣</div>
-            </div>
-            <div class="card-visual suit-red">
-              <div class="card-corner">8<br><span class="suit">♦</span></div>
-              <div class="card-center">♦</div>
-            </div>
-            <div class="card-visual suit-black">
-              <div class="card-corner">9<br><span class="suit">♠</span></div>
-              <div class="card-center">♠</div>
-            </div>
-            <div class="card-visual suit-red">
-              <div class="card-corner">10<br><span class="suit">♥</span></div>
-              <div class="card-center">♥</div>
-            </div>
-            <div class="card-visual suit-black face-card">
-              <div class="card-corner">J<br><span class="suit">♣</span></div>
-              <div class="card-center">♞</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="hand-rank-block hand-three">
-          <div class="rank-header">
-            <span class="rank-name">スリーカード</span>
-            <span class="rank-desc">同じ数字が3枚</span>
-          </div>
-          <div class="hand-display">
-            <div class="card-visual suit-red face-card">
-              <div class="card-corner">Q<br><span class="suit">♥</span></div>
-              <div class="card-center">♛</div>
-            </div>
-            <div class="card-visual suit-red face-card">
-              <div class="card-corner">Q<br><span class="suit">♦</span></div>
-              <div class="card-center">♛</div>
-            </div>
-            <div class="card-visual suit-black face-card">
-              <div class="card-corner">Q<br><span class="suit">♠</span></div>
-              <div class="card-center">♛</div>
-            </div>
-            <div class="card-visual suit-black" style="opacity:0.6; border-color:#555;"><div class="card-corner">2<br><span class="suit">♠</span></div><div class="card-center">♠</div></div>
-            <div class="card-visual suit-black" style="opacity:0.6; border-color:#555;"><div class="card-corner">5<br><span class="suit">♣</span></div><div class="card-center">♣</div></div>
-          </div>
-        </div>
-
-        <div class="hand-rank-block hand-twopair">
-          <div class="rank-header">
-            <span class="rank-name">ツーペア</span>
-            <span class="rank-desc">ワンペアが2つ</span>
-          </div>
-          <div class="hand-display">
-            <div class="card-visual suit-black">
-              <div class="card-corner">9<br><span class="suit">♣</span></div>
-              <div class="card-center">♣</div>
-            </div>
-            <div class="card-visual suit-red">
-              <div class="card-corner">9<br><span class="suit">♥</span></div>
-              <div class="card-center">♥</div>
-            </div>
-            <div class="card-visual suit-red">
-              <div class="card-corner">4<br><span class="suit">♦</span></div>
-              <div class="card-center">♦</div>
-            </div>
-            <div class="card-visual suit-black">
-              <div class="card-corner">4<br><span class="suit">♠</span></div>
-              <div class="card-center">♠</div>
-            </div>
-            <div class="card-visual suit-red" style="opacity:0.5; border-color:#555; box-shadow: none;">
-              <div class="card-corner">A<br><span class="suit">♥</span></div>
-              <div class="card-center">♥</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="hand-rank-block hand-onepair">
-          <div class="rank-header">
-            <span class="rank-name">ワンペア</span>
-            <span class="rank-desc">同じ数字が2枚</span>
-          </div>
-          <div class="hand-display">
-            <div class="card-visual suit-red">
-              <div class="card-corner">10<br><span class="suit">♦</span></div>
-              <div class="card-center">♦</div>
-            </div>
-            <div class="card-visual suit-black">
-              <div class="card-corner">10<br><span class="suit">♠</span></div>
-              <div class="card-center">♠</div>
-            </div>
-            <div class="card-visual suit-black" style="opacity: 0.5; border-color: #555; box-shadow: none;">
-              <div class="card-corner">3<br><span class="suit">♣</span></div>
-              <div class="card-center">♣</div>
-            </div>
-            <div class="card-visual suit-red" style="opacity: 0.5; border-color: #555; box-shadow: none;">
-              <div class="card-corner">6<br><span class="suit">♥</span></div>
-              <div class="card-center">♥</div>
-            </div>
-            <div class="card-visual suit-red face-card" style="opacity: 0.5; border-color: #555; box-shadow: none;">
-              <div class="card-corner">J<br><span class="suit">♦</span></div>
-              <div class="card-center">♞</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="hand-rank-block hand-highcard">
-          <div class="rank-header">
-            <span class="rank-name">ハイカード (役なし)</span>
-            <span class="rank-desc">誰も役がない時、一番強い数字を持つ人が勝ち</span>
-          </div>
-          <div class="hand-display">
-            <div class="card-visual suit-black">
-              <div class="card-corner">A<br><span class="suit">♠</span></div>
-              <div class="card-center">♠</div>
-            </div>
-            <div class="card-visual suit-red face-card" style="opacity: 0.5; border-color: #555; box-shadow: none;">
-              <div class="card-corner">K<br><span class="suit">♦</span></div>
-              <div class="card-center">♚</div>
-            </div>
-            <div class="card-visual suit-black face-card" style="opacity: 0.5; border-color: #555; box-shadow: none;">
-              <div class="card-corner">J<br><span class="suit">♣</span></div>
-              <div class="card-center">♞</div>
-            </div>
-            <div class="card-visual suit-black" style="opacity: 0.5; border-color: #555; box-shadow: none;">
-              <div class="card-corner">8<br><span class="suit">♣</span></div>
-              <div class="card-center">♣</div>
-            </div>
-            <div class="card-visual suit-red" style="opacity: 0.5; border-color: #555; box-shadow: none;">
-              <div class="card-corner">4<br><span class="suit">♥</span></div>
-              <div class="card-center">♥</div>
-            </div>
-          </div>
+        <div class="rule-card">
+          <h3>⚠️ 6. 注意事項</h3>
+          <p>・ゲーム中のタイマーは全員の画面でリアルタイムに同期されています。</p>
+          <p>・画像の保存前に画面をリセットしてしまうと、画像が取得できなくなりますのでご注意ください。</p>
         </div>
 
       </div>
     </div>
-
-    <a href="index.html" class="btn-back">◀ ダッシュボードに戻る</a>
   </div>
 
 </body>
