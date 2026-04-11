@@ -25,9 +25,9 @@
   .t-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 15px rgba(0,0,0,0.5); }
 
   .table-wrapper { width: 100%; flex-grow: 1; overflow-y: auto; overflow-x: auto; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-  table { width: 100%; border-collapse: collapse; background-color: rgba(255, 255, 255, 0.03); min-width: 800px; }
+  table { width: 100%; border-collapse: collapse; background-color: rgba(255, 255, 255, 0.03); min-width: 900px; }
   th, td { border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding: 15px 10px; text-align: center; }
-  th { position: sticky; top: 0; background-color: #1a252f; color: #d4af37; font-size: 16px; white-space: nowrap; font-weight: bold; letter-spacing: 1px; z-index: 10; box-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+  th { position: sticky; top: 0; background-color: #1a252f; color: #d4af37; font-size: 15px; white-space: nowrap; font-weight: bold; letter-spacing: 1px; z-index: 10; box-shadow: 0 2px 10px rgba(0,0,0,0.5); }
   
   input, button, p, div { font-family: 'KEYpro', sans-serif; }
   input { width: 100%; padding: 14px; text-align: right; font-size: 18px; border: 1px solid #555; border-radius: 8px; background-color: rgba(0, 0, 0, 0.6); color: #fff; transition: all 0.2s; outline: none; }
@@ -36,6 +36,11 @@
   
   .readonly { background-color: transparent; border: none; font-weight: bold; color: #bdc3c7; text-align: right; padding-right: 0; font-size: 18px; }
   
+  /* ★ 退出ボタンのスタイル */
+  .checkout-btn { background: rgba(255,255,255,0.1); border: 1px solid #7f8fa6; color: #7f8fa6; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: bold; white-space: nowrap; transition: all 0.3s; width: 100%; letter-spacing: 1px; }
+  .checkout-btn:hover { background: rgba(255,255,255,0.2); }
+  .checkout-btn.checked { background: rgba(46, 204, 113, 0.2); border-color: #2ecc71; color: #2ecc71; box-shadow: 0 0 10px rgba(46, 204, 113, 0.3); }
+
   .del-btn { background-color: transparent; color: #e74c3c; border: 1px solid #e74c3c; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 14px; white-space: nowrap; transition: all 0.3s; }
   .del-btn:hover { background-color: #e74c3c; color: #fff; }
   
@@ -93,14 +98,18 @@
     thead { display: none; }
     tr { background: linear-gradient(145deg, rgba(20, 25, 30, 0.9), rgba(0, 0, 0, 0.9)); margin-bottom: 20px; border-radius: 12px; border: 1px solid rgba(212, 175, 55, 0.4); padding: 15px 15px 55px 15px; position: relative; box-shadow: 0 6px 15px rgba(0,0,0,0.5); }
     td { padding: 8px 0; border: none; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px dashed rgba(255, 255, 255, 0.1); }
-    td:nth-last-child(2) { border-bottom: none; }
+    
+    /* ★ 退出ボタン用の列設定 */
+    td:nth-last-child(2) { border-bottom: none; justify-content: flex-end; padding-top: 15px; }
+    .checkout-btn { width: auto; padding: 10px 25px; }
+
     td[data-label="名前"] { flex-direction: column; align-items: flex-start; border-bottom: 1px solid rgba(212, 175, 55, 0.3); padding-bottom: 15px; margin-bottom: 10px; }
     td[data-label="名前"]::before { width: 100%; color: #d4af37; margin-bottom: 8px; font-size: 14px; letter-spacing: 1px; }
     td[data-label="名前"] input { width: 100%; font-size: 18px; padding: 12px; background: rgba(255,255,255,0.05); }
     td:not([data-label="名前"])::before { content: attr(data-label); color: #bdc3c7; font-size: 13px; width: 40%; flex-shrink: 0; font-weight: bold; text-align: left; }
     td:not([data-label="名前"]) input { width: 60%; flex-grow: 1; padding: 10px; text-align: right; min-width: 0; }
     input.numpad-trigger { cursor: pointer; caret-color: transparent; font-size: 20px; }
-    td:last-child { position: absolute; bottom: 12px; right: 15px; padding: 0; display: block; width: auto; border: none; }
+    td:last-child { position: absolute; bottom: 12px; left: 15px; padding: 0; display: block; width: auto; border: none; }
     .btn-group { flex-direction: column; gap: 10px; }
     .save-btn { font-size: 16px; padding: 16px; }
   }
@@ -108,17 +117,19 @@
   /* 画像生成用エリア */
   #reportArea { position: absolute; top: -9999px; left: -9999px; background: radial-gradient(circle at center, #1a5c38 0%, #0a2e1c 100%); color: #ffffff; padding: 40px; box-sizing: border-box; display: flex; flex-direction: column; border: 10px solid #d4af37; }
   #reportArea.layout-pc { width: 1200px; min-height: 675px; height: auto; }
-  #reportArea.layout-mobile { width: 750px; min-height: 1334px; height: auto; padding: 50px 30px; }
+  #reportArea.layout-mobile { width: 800px; min-height: 1334px; height: auto; padding: 50px 30px; }
   .report-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #d4af37; padding-bottom: 20px; margin-bottom: 20px; }
   .report-title { font-size: 48px; color: #d4af37; font-weight: bold; letter-spacing: 5px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
   .report-suits { font-size: 32px; letter-spacing: 10px; }
   .report-red { color: #e74c3c; }
   .report-meta { font-size: 20px; color: #bdc3c7; text-align: right; line-height: 1.6; }
   .report-table { width: 100%; border-collapse: collapse; flex-grow: 1; margin-bottom: 20px; }
-  .report-table th, .report-table td { border: 1px solid rgba(255,255,255,0.1); padding: 10px; text-align: center; font-size: 18px; }
+  .report-table th, .report-table td { border: 1px solid rgba(255,255,255,0.1); padding: 10px; text-align: center; font-size: 16px; }
+  .layout-mobile .report-table th, .layout-mobile .report-table td { font-size: 22px; padding: 12px 6px; }
   .report-table th { background-color: #1a252f; color: #d4af37; font-weight: bold; }
   .report-table td.name-cell { text-align: left; font-weight: bold; }
-  .report-table td.pay-cell { font-weight: bold; font-size: 22px; }
+  .report-table td.pay-cell { font-weight: bold; font-size: 20px; }
+  .layout-mobile .report-table td.pay-cell { font-size: 26px; }
   .report-plus { color: #2ecc71; }
   .report-minus { color: #e74c3c; }
   .report-footer { display: flex; justify-content: space-between; align-items: center; font-size: 18px; color: #7f8c8d; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 15px; margin-top: 20px; }
@@ -150,6 +161,7 @@
             <th>最終持ち点</th>
             <th>精算後 (点)</th>
             <th>Pay</th>
+            <th>途中退出</th>
             <th></th>
           </tr>
         </thead>
@@ -208,11 +220,11 @@
       </div>
       <div class="report-meta">
         <div id="reportDate">0000年00月00日</div>
-        <div>Play Time: <span id="reportTime">00:00:00</span></div>
+        <div>Global Time: <span id="reportTime">00:00:00</span></div>
       </div>
     </div>
     <table class="report-table">
-      <thead><tr><th>Rank</th><th>Player</th><th>Entry</th><th>Final Chips</th><th>Score (点)</th><th>Pay</th></tr></thead>
+      <thead><tr><th>Rank</th><th>Player</th><th>Time</th><th>Entry</th><th>Final Chips</th><th>Score (点)</th><th>Pay</th></tr></thead>
       <tbody id="reportTableBody"></tbody>
     </table>
     <div class="report-footer">
@@ -285,13 +297,8 @@
 
     window.handleBlur = function(el) {
       if (window.innerWidth <= 900) return;
-      if (el.value === "") { 
-          el.value = el.dataset.orig || "0"; 
-      } else {
-          // Blur時にカンマ付きの綺麗なフォーマットに自動変換
-          const raw = parseFloat(el.value.replace(/,/g, '')) || 0;
-          el.value = formatNumber(raw);
-      }
+      if (el.value === "") { el.value = el.dataset.orig || "0"; }
+      else { const raw = parseFloat(el.value.replace(/,/g, '')) || 0; el.value = formatNumber(raw); }
       window.calculate();
     };
 
@@ -325,22 +332,8 @@
       window.calculate();
     };
 
-    // 電卓入力時にも自動でカンマをつけるように修正
-    window.numpadType = function(val) { 
-        if (activeNumpadInput) { 
-            let currentRaw = activeNumpadInput.value.replace(/,/g, '');
-            currentRaw += val;
-            activeNumpadInput.value = formatNumber(parseFloat(currentRaw) || 0); 
-            window.calculate(); 
-        } 
-    };
-    window.numpadDel = function() { 
-        if (activeNumpadInput) { 
-            let currentRaw = activeNumpadInput.value.replace(/,/g, '').slice(0, -1);
-            activeNumpadInput.value = currentRaw === "" ? "" : formatNumber(parseFloat(currentRaw) || 0);
-            window.calculate(); 
-        } 
-    };
+    window.numpadType = function(val) { if (activeNumpadInput) { let currentRaw = activeNumpadInput.value.replace(/,/g, ''); currentRaw += val; activeNumpadInput.value = formatNumber(parseFloat(currentRaw) || 0); window.calculate(); } };
+    window.numpadDel = function() { if (activeNumpadInput) { let currentRaw = activeNumpadInput.value.replace(/,/g, '').slice(0, -1); activeNumpadInput.value = currentRaw === "" ? "" : formatNumber(parseFloat(currentRaw) || 0); window.calculate(); } };
     window.numpadClear = function() { if (activeNumpadInput) { activeNumpadInput.value = ""; window.calculate(); } };
 
     const STARTING_CHIPS = 20000;
@@ -349,6 +342,21 @@
     let isFirstLoad = true;
 
     function formatNumber(num) { return num.toLocaleString(); }
+
+    // ★ 退出ボタンが押された時の処理
+    window.toggleCheckout = function(btn) {
+      if (btn.classList.contains('checked')) {
+        btn.classList.remove('checked');
+        btn.dataset.time = "";
+        btn.innerText = "退出";
+      } else {
+        const currentTime = getFormattedTime();
+        btn.classList.add('checked');
+        btn.dataset.time = currentTime;
+        btn.innerText = `済 ${currentTime}`;
+      }
+      window.calculate(); // データ保存トリガー
+    };
 
     onValue(ref(db, 'pokerSession/players'), (snapshot) => {
       const draftData = snapshot.val();
@@ -363,22 +371,30 @@
       const data = draftData || [];
       while(tableBody.children.length < data.length) { tableBody.appendChild(window.createRow()); }
       while(tableBody.children.length > data.length) { tableBody.lastChild.remove(); }
+      
       let totalPaySum = 0;
       data.forEach((p, index) => {
          const row = tableBody.children[index];
          const nameInput = row.querySelector('.name-input');
          const entryInput = row.querySelector('.entry');
          const chipsInput = row.querySelector('.final-chips');
+         const checkoutBtn = row.querySelector('.checkout-btn');
          
          if (document.activeElement !== nameInput) { nameInput.value = p.name || ""; }
-         // Firebaseからのデータを読み込む際にカンマをつけてフォーマット
-         if (entryInput !== activeNumpadInput && document.activeElement !== entryInput) { 
-             entryInput.value = formatNumber(p.entry !== undefined ? p.entry : 1); 
-         }
-         if (chipsInput !== activeNumpadInput && document.activeElement !== chipsInput) { 
-             chipsInput.value = formatNumber(p.finalChips !== undefined ? p.finalChips : 0); 
-         }
+         if (entryInput !== activeNumpadInput && document.activeElement !== entryInput) { entryInput.value = formatNumber(p.entry !== undefined ? p.entry : 1); }
+         if (chipsInput !== activeNumpadInput && document.activeElement !== chipsInput) { chipsInput.value = formatNumber(p.finalChips !== undefined ? p.finalChips : 0); }
          
+         // Firebaseから退出時間を復元
+         if (p.checkoutTime) {
+           checkoutBtn.classList.add('checked');
+           checkoutBtn.dataset.time = p.checkoutTime;
+           checkoutBtn.innerText = `済 ${p.checkoutTime}`;
+         } else {
+           checkoutBtn.classList.remove('checked');
+           checkoutBtn.dataset.time = "";
+           checkoutBtn.innerText = "退出";
+         }
+
          const entry = parseFloat(entryInput.value.replace(/,/g, '')) || 0;
          const finalChips = parseFloat(chipsInput.value.replace(/,/g, '')) || 0;
          const result = finalChips - (entry * STARTING_CHIPS);
@@ -398,26 +414,21 @@
       let draftData = []; 
       rows.forEach(row => {
         const name = row.querySelector('.name-input').value; 
-        
-        // ★ 修正ポイント：カンマを完全に除去してから計算に使う
         const entryRaw = row.querySelector('.entry').value.replace(/,/g, '');
         const chipsRaw = row.querySelector('.final-chips').value.replace(/,/g, '');
-        
         const entry = parseFloat(entryRaw) || 0;
         const finalChips = parseFloat(chipsRaw) || 0;
-        
+        const checkoutTime = row.querySelector('.checkout-btn').dataset.time || "";
+
         const result = finalChips - (entry * STARTING_CHIPS);
         const pay = result / RATE;
         
         row.querySelector('.result').value = formatNumber(result);
         row.querySelector('.pay').value = formatNumber(pay);
         totalPaySum += pay;
-        draftData.push({ name, entry, finalChips });
+        draftData.push({ name, entry, finalChips, checkoutTime });
       });
-      
-      // ★ 修正ポイント：JavaScript特有の少数計算のズレを綺麗に丸めて解消
       totalPaySum = Math.round(totalPaySum * 100) / 100;
-      
       updateStatus(totalPaySum);
       set(ref(db, 'pokerSession/players'), draftData);
     };
@@ -430,9 +441,13 @@
       else { status.innerHTML = `<span class="status-badge">⚠️ エラー: ${totalPaySum > 0 ? '+' : ''}${formatNumber(totalPaySum)} のズレ</span>`; msg.className = "summary error"; }
     }
 
-    window.createRow = function(name = "", entry = 1, finalChips = 0) {
+    // ★ 行生成時に退出ボタンを追加
+    window.createRow = function(name = "", entry = 1, finalChips = 0, checkoutTime = "") {
       const isMobile = window.innerWidth <= 900;
       const readOnlyAttr = isMobile ? 'readonly tabindex="-1"' : '';
+      const checkoutClass = checkoutTime ? "checkout-btn checked" : "checkout-btn";
+      const checkoutText = checkoutTime ? `済 ${checkoutTime}` : "退出";
+
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td data-label="名前"><input type="text" class="name-input" placeholder="プレイヤー名" value="${name}" oninput="window.calculate()"></td>
@@ -440,6 +455,7 @@
         <td data-label="最終持ち点"><input type="text" inputmode="numeric" class="final-chips numpad-trigger" value="${formatNumber(finalChips)}" ${readOnlyAttr} oninput="window.calculate()" onclick="window.openCustomNumpad(this)" onfocus="window.handleFocus(this)" onblur="window.handleBlur(this)"></td>
         <td data-label="精算後 (点)"><input type="text" class="result readonly" value="-20,000" readonly tabindex="-1"></td>
         <td data-label="Pay"><input type="text" class="pay readonly" value="-2,000" readonly tabindex="-1"></td>
+        <td data-label=""><button class="${checkoutClass}" data-time="${checkoutTime}" onclick="window.toggleCheckout(this)">${checkoutText}</button></td>
         <td data-label=""><button class="del-btn" onclick="window.removeRow(this)">✖ 削除</button></td>
       `;
       return tr;
@@ -455,6 +471,7 @@
       let playerData = [];
       let hasName = false;
       const currentPlayTime = getFormattedTime();
+      
       rows.forEach(row => {
         const name = row.querySelector('.name-input').value.trim();
         if (name !== "") {
@@ -463,9 +480,15 @@
           const chipsRaw = row.querySelector('.final-chips').value.replace(/,/g, '');
           const entry = parseFloat(entryRaw) || 0;
           const finalChips = parseFloat(chipsRaw) || 0;
+          const checkoutTime = row.querySelector('.checkout-btn').dataset.time || ""; // 退出時間を取得
+
           const result = finalChips - (entry * STARTING_CHIPS);
           const pay = result / RATE;
-          playerData.push({ name, entry, finalChips, result, pay, playTime: currentPlayTime });
+          
+          // 個別のプレイ時間を設定（退出していればその時間、していなければ全体の時間）
+          const finalPlayTime = checkoutTime ? checkoutTime : currentPlayTime;
+          
+          playerData.push({ name, entry, finalChips, result, pay, playTime: finalPlayTime });
         }
       });
       if (!hasName) { alert("プレイヤー名が入力されていません。"); return; }
@@ -499,20 +522,23 @@
       }, 500);
     };
 
-    function prepareReportArea(data, playTime) {
+    function prepareReportArea(data, globalTime) {
       const now = new Date();
       document.getElementById('reportDate').innerText = now.getFullYear() + "年" + (now.getMonth() + 1) + "月" + now.getDate() + "日";
-      document.getElementById('reportTime').innerText = playTime;
+      document.getElementById('reportTime').innerText = globalTime;
+      
       const sortedData = [...data].sort((a, b) => b.pay - a.pay);
       const tbody = document.getElementById('reportTableBody');
       tbody.innerHTML = '';
       let totalPay = 0;
+      
       sortedData.forEach((player, index) => {
         totalPay += player.pay;
         const tr = document.createElement('tr');
         const payClass = player.pay > 0 ? 'report-plus' : (player.pay < 0 ? 'report-minus' : '');
         const paySign = player.pay > 0 ? '+' : '';
-        tr.innerHTML = `<td>${index+1}</td><td class="name-cell">${player.name}</td><td>${player.entry}</td><td>${formatNumber(player.finalChips)}</td><td class="${payClass}">${paySign}${formatNumber(player.result)}</td><td class="pay-cell ${payClass}">${paySign}${formatNumber(player.pay)}</td>`;
+        // レポート表に Time(プレイ時間) の列を追加して描写
+        tr.innerHTML = `<td>${index+1}</td><td class="name-cell">${player.name}</td><td>${player.playTime}</td><td>${player.entry}</td><td>${formatNumber(player.finalChips)}</td><td class="${payClass}">${paySign}${formatNumber(player.result)}</td><td class="pay-cell ${payClass}">${paySign}${formatNumber(player.pay)}</td>`;
         tbody.appendChild(tr);
       });
       totalPay = Math.round(totalPay * 100) / 100;
