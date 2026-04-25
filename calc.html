@@ -3,329 +3,270 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>ポーカー管理 - KEYpro poker</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Nosifer&family=Work+Sans:wght@900&display=swap" rel="stylesheet">
+<title>チップ精算 - KEYpro poker Server</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
-  /* 全体の設定 */
   *, *::before, *::after { box-sizing: border-box; }
-  html, body { max-width: 100vw; overflow-x: hidden; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; background-color: #0a2e1c; }
-  body { background: radial-gradient(circle at center, #1a5c38 0%, #0a2e1c 100%); background-attachment: fixed; color: #ffffff; text-align: center; margin: 0; min-height: 100dvh; display: flex; align-items: center; justify-content: center; padding: 15px; font-family: 'KEYpro', sans-serif; }
+  /* ★修正: 背景色をダークグリーンで塗りつぶし、白余白を消す */
+  html, body { max-width: 100vw; overflow-x: hidden; scroll-behavior: smooth; background-color: #0a2e1c; }
+  /* ★修正: min-heightを100dvhにし、背景をfixedに */
+  body { background: radial-gradient(circle at center, #1a5c38 0%, #0a2e1c 100%); background-attachment: fixed; color: #ffffff; padding: 15px; margin: 0; min-height: 100dvh; display: flex; align-items: center; justify-content: center; font-family: 'KEYpro', sans-serif; }
   
-  .dashboard-container { display: flex; flex-direction: column; width: 98vw; max-width: 2000px; height: 96vh; min-height: 600px; background-color: rgba(10, 0, 0, 0.85); border-radius: 12px; border: 2px solid #d4af37; box-shadow: 0 15px 50px rgba(0,0,0,0.9); overflow: hidden; position: relative; }
+  .container { width: 96vw; max-width: 1800px; height: 96vh; min-height: 600px; display: flex; flex-direction: column; background-color: rgba(0, 0, 0, 0.7); padding: 30px; border-radius: 16px; border: 2px solid #d4af37; box-shadow: 0 10px 40px rgba(0,0,0,0.7); overflow: hidden; position: relative; }
   
-  .dashboard-main { display: flex; flex-direction: row; flex: 1; min-height: 0; overflow: hidden; }
+  h2 { color: #d4af37; margin-top: 0; margin-bottom: 20px; font-size: 24px; border-bottom: 2px solid #d4af37; padding-bottom: 15px; text-shadow: 0px 4px 10px rgba(0,0,0,0.8); letter-spacing: 3px; text-align: center; font-weight: bold; flex-shrink: 0; }
 
-  .left-col { flex: 1; padding: 30px; display: flex; flex-direction: column; justify-content: center; align-items: center; border-right: 1px solid rgba(127, 140, 141, 0.3); background: rgba(0,0,0,0.4); position: relative; }
-  .right-col { flex: 1.5; padding: 20px 30px; display: flex; flex-direction: column; overflow: hidden; background: rgba(15, 0, 0, 0.6); gap: 15px; }
-
-  .suits { font-size: clamp(32px, 4vw, 60px); letter-spacing: 12px; margin-bottom: 5px; opacity: 0.9; margin-right: -12px; }
-  .suit-red { color: #ff4757; }
-  .suit-black { color: #ffffff; }
-  
-  h1 { font-family: 'Work Sans', sans-serif; color: #d4af37; font-size: clamp(60px, 8vw, 120px); margin: 0 -4px 10px 0; text-shadow: 0 0 15px rgba(212, 175, 55, 0.4); letter-spacing: -3px; font-weight: 900; line-height: 1; }
-  h1 span { font-family: 'KEYpro', sans-serif; color: #d4af37; font-size: clamp(16px, 2vw, 30px); margin-left: 10px; font-weight: normal; text-transform: uppercase; letter-spacing: 4px; vertical-align: middle; }
-
-  p.subtitle { font-size: clamp(16px, 2vw, 28px); margin-bottom: 25px; margin-right: -3px; color: #7f8fa6; letter-spacing: 3px; text-transform: uppercase; }
-  
-  .date-header { font-size: clamp(24px, 3vw, 42px); font-weight: bold; color: #dcdde1; margin-bottom: 20px; background: rgba(255,255,255,0.05); padding: 15px 30px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); letter-spacing: 3px; }
-  
-  .timer-label { font-size: clamp(20px, 2.5vw, 36px); color: #7f8fa6; margin-bottom: 10px; letter-spacing: 4px; text-transform: uppercase; }
-  .timer-display { background: #000; color: #2ed573; font-family: 'Courier New', monospace; font-size: clamp(70px, 10vw, 150px); font-weight: bold; padding: 15px 20px; border-radius: 12px; border: 1px solid #2f3542; text-shadow: 0 0 30px rgba(46, 213, 115, 0.6); box-shadow: inset 0 0 40px rgba(0,0,0,1); letter-spacing: 2px; line-height: 1; margin-bottom: 20px; }
-  
-  .board-title { color: #d4af37; font-size: clamp(20px, 2vw, 34px); letter-spacing: 2px; font-weight: bold; text-align: left; border-bottom: 2px solid rgba(212, 175, 55, 0.4); padding-bottom: 12px; text-transform: uppercase; display: flex; align-items: center; gap: 12px; margin-bottom: 10px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .board-title::before { content: ''; display: inline-block; width: 8px; height: 32px; background-color: #d4af37; box-shadow: 0 0 12px #d4af37; }
-  
-  .live-ranking-list { display: flex; flex-direction: column; width: 100%; flex-grow: 1; min-height: 0; overflow: hidden; margin-bottom: 10px; position: relative; }
-  
-  .title-re-entry { font-family: 'Nosifer', sans-serif; color: #ff4757; -webkit-text-stroke: 1.5px #800000; border-bottom-color: rgba(179, 0, 0, 0.5); animation: flameTitle 4s ease-in-out infinite alternate; }
-  .title-re-entry::before { background-color: #ff4757; box-shadow: 0 0 15px #ff4757; }
-  .title-re-entry .title-skull { width: clamp(24px, 2.5vw, 36px); height: clamp(24px, 2.5vw, 36px); fill: #ff4757; margin-left: 10px; filter: drop-shadow(0 0 8px #ff0000); flex-shrink: 0; }
-
-  .live-rank-card { display: flex; justify-content: flex-start; align-items: center; background: rgba(0, 0, 0, 0.9); border-left: 5px solid transparent; padding: clamp(12px, 1.5vw, 20px) clamp(15px, 2vw, 30px); border-radius: 0 10px 10px 0; box-shadow: inset 0 -1px 0 rgba(255,255,255,0.05); flex-shrink: 0; transition: all 0.3s; position: relative; overflow: hidden; border: 1px solid #1a1a1a; animation: crackFlicker 5s ease-in-out infinite; }
-  .live-rank-card .card-skull-bg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: clamp(120px, 15vw, 200px); height: clamp(120px, 15vw, 200px); fill: rgba(255, 255, 255, 0.04); z-index: 0; pointer-events: none; }
-
-  .live-rank-card.worst-1 { border-left-color: transparent; border-left-image: linear-gradient(180deg, #ff4500, #ff0000, #ff4500); border-left-image-slice: 1; background: linear-gradient(90deg, rgba(128, 0, 0, 0.3) 0%, rgba(0,0,0,0.9) 100%); border-color: rgba(179, 0, 0, 0.4); animation: flameCard 4s ease-in-out infinite alternate; }
-  .worst-1 .card-skull-bg { fill: rgba(179, 0, 0, 0.08); filter: drop-shadow(0 0 15px #ff4500); }
-  .live-rank-card.worst-2 { border-left-color: #bf9b30; background: linear-gradient(90deg, rgba(191, 155, 48, 0.08) 0%, rgba(0,0,0,0.7) 100%); border-color: rgba(191, 155, 48, 0.2); }
-  .live-rank-card.worst-3 { border-left-color: #a67c00; background: linear-gradient(90deg, rgba(166, 124, 0, 0.05) 0%, rgba(0,0,0,0.7) 100%); border-color: rgba(166, 124, 0, 0.1); }
-
-  .rank-col { width: clamp(80px, 9vw, 130px); display: flex; align-items: center; justify-content: flex-start; z-index: 1; flex-shrink: 0; }
-  .name-col { flex-grow: 1; text-align: left; padding-left: 15px; display: flex; flex-direction: column; gap: 6px; justify-content: center; z-index: 1; overflow: hidden; }
-  .entry-col { width: clamp(110px, 13vw, 180px); display: flex; align-items: center; justify-content: flex-end; z-index: 1; flex-shrink: 0; text-align: right; }
-  
-  .rank-badge-text { font-family: 'Nosifer', sans-serif; font-size: clamp(34px, 3.5vw, 50px); font-weight: normal; color: transparent; -webkit-text-stroke: 1.5px #800000; letter-spacing: 2px; line-height: 1; animation: flameRank 4s ease-in-out infinite alternate; }
-  .worst-1 .rank-badge-text { font-size: clamp(40px, 4.5vw, 65px); -webkit-text-stroke-color: #800000; filter: drop-shadow(0 0 12px #ff4500); }
-  .worst-2 .rank-badge-text { -webkit-text-stroke-color: #bf9b30; filter: drop-shadow(0 0 8px rgba(191, 155, 48, 0.5)); animation: none; }
-  .worst-3 .rank-badge-text { -webkit-text-stroke-color: #a67c00; filter: drop-shadow(0 0 6px rgba(166, 124, 0, 0.4)); animation: none; }
-
-  .player-name-item { font-size: clamp(24px, 3vw, 46px); font-weight: bold; color: #f1f2f6; letter-spacing: 3px; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .worst-1 .player-name-item { font-size: clamp(30px, 3.8vw, 56px); color: #ffffff; text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 0 0 15px #ff4500; animation: flameName 3s ease-in-out infinite alternate; }
-
-  .entry-badge { display: flex; align-items: baseline; justify-content: flex-end; gap: 8px; width: 100%; }
-  .entry-badge .num { font-family: 'Nosifer', sans-serif; font-size: clamp(38px, 4.5vw, 65px); font-weight: normal; line-height: 1; color: #7f8fa6; }
-  .entry-badge .unit { font-size: clamp(16px, 2vw, 28px); color: #7f8fa6; font-weight: normal; letter-spacing: 2px; }
-
-  .worst-1 .entry-badge .num { color: #ff4500; text-shadow: 0 0 20px rgba(255, 69, 0, 0.6); animation: flameEntry 4s ease-in-out infinite alternate; }
-  .worst-2 .entry-badge .num { color: #bf9b30; text-shadow: 0 0 12px rgba(191, 155, 48, 0.5); }
-  .worst-3 .entry-badge .num { color: #a67c00; text-shadow: 0 0 10px rgba(166, 124, 0, 0.4); }
-
-  @keyframes flameTitle { 0% { text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 0 0 10px #ff4500; } 100% { text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 0 0 15px #ff4500; } }
-  @keyframes flameCard { 0% { box-shadow: 0 0 20px rgba(179, 0, 0, 0.5), inset 0 0 10px rgba(179, 0, 0, 0.2); } 100% { box-shadow: 0 0 25px rgba(179, 0, 0, 0.7), inset 0 0 15px rgba(179, 0, 0, 0.3); } }
-  @keyframes flameRank { 0% { filter: drop-shadow(0 0 10px rgba(179, 0, 0, 0.6)); } 100% { filter: drop-shadow(0 0 15px rgba(179, 0, 0, 0.9)); } }
-  @keyframes flameEntry { 0% { text-shadow: 0 0 15px rgba(255, 69, 0, 0.5); } 100% { text-shadow: 0 0 20px rgba(255, 69, 0, 0.8); } }
-  @keyframes flameName { 0% { text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 0 0 8px #ff4500; color: #ffffff; } 100% { text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 0 0 12px #ff4500; color: #fff5e6; } }
-  @keyframes crackFlicker { 0%, 100% { opacity: 1; } 50% { opacity: 0.95; } }
-
-  .title-active { color: #d4af37; border-bottom-color: rgba(212, 175, 55, 0.4); text-shadow: 0 0 10px rgba(212, 175, 55, 0.4); margin-top: auto; }
-  .title-active::before { background-color: #d4af37; box-shadow: 0 0 10px #d4af37; }
-
-  .active-players-grid { display: flex; width: 100%; max-height: 250px; overflow: hidden; flex-shrink: 0; align-items: flex-start; justify-content: center; }
-
-  .player-tag { 
-    background: linear-gradient(145deg, rgba(30, 30, 30, 0.95) 0%, rgba(5, 5, 5, 0.95) 100%);
-    border: 1px solid rgba(212, 175, 55, 0.4);
-    border-left: 6px solid #d4af37;
-    padding: 15px 25px; 
-    border-radius: 8px; 
-    font-size: clamp(20px, 2.5vw, 36px); 
-    color: #fcf6ba; 
-    display: flex; 
-    flex-direction: column;
-    align-items: flex-start; 
-    gap: 0; 
-    box-shadow: 0 8px 20px rgba(0,0,0,0.8), inset 0 2px 5px rgba(212, 175, 55, 0.15); 
-    font-weight: bold; 
-    letter-spacing: 2px; 
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); 
-    position: relative; 
-    cursor: pointer;
-    min-width: clamp(220px, 22vw, 320px);
-    overflow: hidden;
-  }
-  
-  .player-tag::after {
-    content: '';
+  .discreet-next-btn {
     position: absolute;
-    top: 0; left: -100%;
-    width: 50%; height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(252, 246, 186, 0.2), transparent);
-    transform: skewX(-20deg);
-    transition: all 0.6s ease;
-  }
-  
-  .player-tag:hover { 
-    transform: translateY(-3px); 
-    border-color: rgba(212, 175, 55, 0.8);
-    box-shadow: 0 12px 30px rgba(0,0,0,0.9), 0 0 20px rgba(212, 175, 55, 0.4); 
-  }
-  .player-tag:hover::after {
-    left: 200%;
-  }
-
-  .tag-header { display: flex; align-items: center; justify-content: space-between; width: 100%; position: relative; z-index: 2; }
-
-  .vip-tag-1 { 
-    border-left: 6px solid #f1c40f !important;
-    background: linear-gradient(145deg, rgba(50, 40, 10, 0.95) 0%, rgba(10, 8, 5, 0.95) 100%) !important;
-    border-color: rgba(241, 196, 15, 0.6) !important;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.8), 0 0 15px rgba(241, 196, 15, 0.2), inset 0 2px 5px rgba(241, 196, 15, 0.2) !important;
-  }
-  .vip-tag-1:hover { border-color: rgba(241, 196, 15, 1) !important; box-shadow: 0 12px 30px rgba(0,0,0,0.9), 0 0 25px rgba(241, 196, 15, 0.5) !important; }
-  .vip-tag-1 .tag-name { color: #f1c40f; text-shadow: 0 0 10px rgba(241, 196, 15, 0.5); }
-
-  .vip-tag-2 { 
-    border-left: 6px solid #bdc3c7 !important;
-    background: linear-gradient(145deg, rgba(40, 45, 50, 0.95) 0%, rgba(10, 12, 15, 0.95) 100%) !important;
-    border-color: rgba(189, 195, 199, 0.6) !important;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.8), 0 0 15px rgba(189, 195, 199, 0.2), inset 0 2px 5px rgba(189, 195, 199, 0.2) !important;
-  }
-  .vip-tag-2:hover { border-color: rgba(189, 195, 199, 1) !important; box-shadow: 0 12px 30px rgba(0,0,0,0.9), 0 0 25px rgba(189, 195, 199, 0.5) !important; }
-  .vip-tag-2 .tag-name { color: #bdc3c7; text-shadow: 0 0 10px rgba(189, 195, 199, 0.5); }
-
-  .vip-tag-3 { 
-    border-left: 6px solid #cd7f32 !important;
-    background: linear-gradient(145deg, rgba(50, 30, 20, 0.95) 0%, rgba(15, 10, 5, 0.95) 100%) !important;
-    border-color: rgba(205, 127, 50, 0.6) !important;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.8), 0 0 15px rgba(205, 127, 50, 0.2), inset 0 2px 5px rgba(205, 127, 50, 0.2) !important;
-  }
-  .vip-tag-3:hover { border-color: rgba(205, 127, 50, 1) !important; box-shadow: 0 12px 30px rgba(0,0,0,0.9), 0 0 25px rgba(205, 127, 50, 0.5) !important; }
-  .vip-tag-3 .tag-name { color: #cd7f32; text-shadow: 0 0 10px rgba(205, 127, 50, 0.5); }
-
-  .player-stats {
-    display: none;
-    width: 100%;
-    margin-top: 12px;
-    padding-top: 12px;
-    border-top: 1px solid rgba(212, 175, 55, 0.2);
-    font-family: 'Courier New', monospace;
-    font-size: clamp(13px, 1.4vw, 18px);
-    text-align: left;
-    letter-spacing: 1px;
-    font-weight: normal;
-    position: relative;
-    z-index: 2;
-  }
-  .player-tag.open .player-stats { display: block; animation: expandStats 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); }
-  @keyframes expandStats { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
-
-  .stats-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 8px 15px;
-  }
-  .stat-item { display: flex; flex-direction: column; }
-  .stat-label { color: #b39a59; font-size: 0.8em; letter-spacing: 2px; margin-bottom: 2px; }
-  .stat-val { color: #ffffff; font-weight: bold; font-size: 1.1em; }
-  .stat-val.plus { color: #2ed573; text-shadow: 0 0 8px rgba(46, 213, 115, 0.4); }
-  .stat-val.minus { color: #ff4757; text-shadow: 0 0 8px rgba(255, 71, 87, 0.4); }
-  
-  .crown-icon { width: clamp(20px, 2.5vw, 32px); height: clamp(20px, 2.5vw, 32px); margin-left: 8px; margin-top: -2px; z-index: 1; }
-
-  .empty-text { color: #57606f; font-size: clamp(18px, 2vw, 26px); width: 100%; text-align: center; margin-top: 20px; letter-spacing: 2px; line-height: 1.8; font-weight: bold; }
-  .empty-text span { color: #d4af37; font-weight: bold; font-size: clamp(16px, 1.8vw, 22px); }
-  
-  .nav-buttons {
-    position: absolute;
-    bottom: 25px; 
-    right: 25px; 
-    display: none; 
-    gap: 15px;
-    z-index: 50;
-  }
-  
-  .discreet-btn {
-    background: rgba(0, 0, 0, 0.6);
+    top: 25px;
+    left: 30px;
+    background: transparent;
     color: #7f8fa6;
-    border: 1px solid rgba(127, 140, 141, 0.5);
-    padding: 10px 20px; 
-    font-size: clamp(12px, 1vw, 16px);
-    border-radius: 50px;
+    border: none;
+    padding: 5px 10px;
+    font-size: 11px;
     text-decoration: none;
-    letter-spacing: 2px;
-    transition: all 0.3s ease;
+    letter-spacing: 3px;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     font-weight: bold;
-    text-align: center; 
-    white-space: nowrap;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    opacity: 0.7;
   }
-  .discreet-btn:hover { background: #d4af37; color: #000; border-color: #d4af37; box-shadow: 0 0 20px rgba(212, 175, 55, 0.5); transform: translateY(-2px); }
+  .discreet-next-btn::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-top: 2px solid currentColor;
+    border-left: 2px solid currentColor;
+    transform: rotate(-45deg);
+    margin-top: 1px;
+  }
+  .discreet-next-btn:hover { color: #d4af37; opacity: 1; transform: translateX(-5px); }
 
-  .secret-btn { position: fixed; top: 15px; left: 15px; background: transparent; color: #57606f; border: none; font-size: 32px; cursor: pointer; padding: 10px; transition: color 0.3s; outline: none; z-index: 100; }
-  .secret-btn:hover { color: #ffffff; }
+  .timer-control { background: rgba(0, 0, 0, 0.4); border: 1px solid #7f8c8d; border-radius: 12px; padding: 15px; margin-bottom: 20px; display: flex; flex-direction: column; align-items: center; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); flex-shrink: 0; }
+  .timer-control-title { color: #bdc3c7; font-size: 14px; margin-bottom: 8px; letter-spacing: 1px; }
+  .timer-display-small { font-family: 'Courier New', monospace; font-size: 42px; font-weight: bold; color: #2ecc71; margin-bottom: 15px; text-shadow: 0 0 15px rgba(46,204,113,0.5); }
+  .timer-btns { display: flex; gap: 12px; width: 100%; justify-content: center; max-width: 500px; }
+  .t-btn { padding: 10px 0; border: 1px solid rgba(255,255,255,0.2); border-radius: 50px; font-weight: bold; cursor: pointer; color: #fff; font-size: 14px; flex: 1; transition: all 0.2s; outline: none; }
+  .btn-start { background: linear-gradient(145deg, #27ae60, #2ecc71); box-shadow: 0 4px 10px rgba(39, 174, 96, 0.3); }
+  .btn-stop { background: linear-gradient(145deg, #d35400, #e67e22); box-shadow: 0 4px 10px rgba(211, 84, 0, 0.3); }
+  .btn-reset { background: linear-gradient(145deg, #7f8c8d, #95a5a6); box-shadow: 0 4px 10px rgba(127, 140, 141, 0.3); }
+  .t-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 15px rgba(0,0,0,0.5); }
 
-  .footer-text { position: absolute; bottom: 15px; left: 20px; font-size: 14px; color: #57606f; letter-spacing: 2px; text-transform: uppercase; z-index: 10;}
+  .table-wrapper { width: 100%; flex-grow: 1; overflow-y: auto; overflow-x: auto; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+  table { width: 100%; border-collapse: collapse; background-color: rgba(255, 255, 255, 0.03); min-width: 900px; }
+  th, td { border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding: 15px 10px; text-align: center; }
+  th { position: sticky; top: 0; background-color: #1a252f; color: #d4af37; font-size: 15px; white-space: nowrap; font-weight: bold; letter-spacing: 1px; z-index: 10; box-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+  
+  input, button, p, div { font-family: 'KEYpro', sans-serif; }
+  input { width: 100%; padding: 14px; text-align: right; font-size: 18px; border: 1px solid #555; border-radius: 8px; background-color: rgba(0, 0, 0, 0.6); color: #fff; transition: all 0.2s; outline: none; }
+  input:focus { border-color: #d4af37; background-color: rgba(0, 0, 0, 0.9); box-shadow: 0 0 10px rgba(212, 175, 55, 0.3); }
+  input[type="text"].name-input { text-align: left; }
+  
+  .readonly { background-color: transparent; border: none; font-weight: bold; color: #bdc3c7; text-align: right; padding-right: 0; font-size: 18px; }
+  
+  .checkout-btn { background: rgba(255,255,255,0.1); border: 1px solid #7f8fa6; color: #7f8fa6; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: bold; white-space: nowrap; transition: all 0.3s; width: 100%; letter-spacing: 1px; }
+  .checkout-btn:hover { background: rgba(255,255,255,0.2); }
+  .checkout-btn.checked { background: rgba(46, 204, 113, 0.2); border-color: #2ecc71; color: #2ecc71; box-shadow: 0 0 10px rgba(46, 204, 113, 0.3); }
 
-  /* 📱 スマホ用 */
+  .del-btn { background-color: transparent; color: #e74c3c; border: 1px solid #e74c3c; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 14px; white-space: nowrap; transition: all 0.3s; }
+  .del-btn:hover { background-color: #e74c3c; color: #fff; }
+  
+  .summary { margin-top: 10px; font-size: 22px; font-weight: bold; color: #fff; background: rgba(0,0,0,0.5); padding: 20px; border-radius: 12px; border: 2px solid #d4af37; text-align: left; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.5); flex-shrink: 0; }
+  .total-label { color: #d4af37; font-size: 18px; margin-right: 10px; }
+  .status-badge { font-size: 16px; padding: 6px 20px; border-radius: 20px; font-weight: normal; }
+  .match .status-badge { background-color: rgba(46, 204, 113, 0.2); color: #2ecc71; border: 1px solid #2ecc71; }
+  .error .status-badge { background-color: rgba(231, 76, 60, 0.2); color: #e74c3c; border: 1px solid #e74c3c; animation: pulse 2s infinite; }
+
+  .draft-notice { font-size: 14px; color: #f1c40f; margin-top: 10px; margin-bottom: 10px; text-align: center; letter-spacing: 1px; font-weight: bold; flex-shrink: 0; }
+
+  .btn-group { display: flex; flex-direction: row; gap: 15px; flex-shrink: 0; margin-bottom: 0; }
+  .btn { flex: 1; border-radius: 50px; cursor: pointer; transition: all 0.3s; font-weight: bold; text-align: center; text-decoration: none; outline: none; display: flex; align-items: center; justify-content: center; }
+  .add-btn { background: rgba(255,255,255,0.05); color: #fff; border: 1px solid #7f8c8d; padding: 15px; font-size: 16px; }
+  .save-btn { background: linear-gradient(145deg, #bf953f, #b38728); color: #fff; border: 1px solid #fcf6ba; font-size: 18px; padding: 18px; position: relative; overflow: hidden; box-shadow: 0 5px 15px rgba(184, 134, 11, 0.4); text-shadow: 1px 1px 2px rgba(0,0,0,0.6); }
+  .save-btn:disabled { background: #95a5a6; border-color: #7f8c8d; cursor: not-allowed; }
+  .sheet-btn { background: rgba(46, 204, 113, 0.05); color: #2ecc71; border: 1px solid rgba(46, 204, 113, 0.4); padding: 15px; font-size: 16px; }
+  .sheet-btn:hover { background: #2ecc71; color: #000; border-color: #2ecc71; box-shadow: 0 0 15px rgba(46, 204, 113, 0.4); }
+
+  /* カスタム電卓 */
+  .numpad-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: transparent; z-index: 9998; display: none; }
+  .numpad-overlay.show { display: block; }
+  .custom-numpad { position: fixed; bottom: -100%; left: 0; width: 100vw; background: #111; z-index: 9999; transition: bottom 0.3s cubic-bezier(0.175, 0.885, 0.32, 1); border-top: 2px solid #d4af37; box-shadow: 0 -10px 40px rgba(0,0,0,0.9); padding-bottom: env(safe-area-inset-bottom); }
+  .custom-numpad.show { bottom: 0; }
+  .numpad-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: #333; }
+  .numpad-btn { background: #000; color: #fff; border: none; font-size: 26px; padding: 22px 0; font-family: 'Courier New', monospace; font-weight: bold; cursor: pointer; outline: none; transition: background 0.1s; touch-action: manipulation; user-select: none; -webkit-user-select: none; }
+  .numpad-btn:active { background: #333; }
+  .numpad-btn.action { background: #1a252f; color: #e74c3c; font-size: 24px; }
+  .numpad-btn.done { background: linear-gradient(145deg, #bf953f, #b38728); color: #fff; font-family: 'KEYpro', sans-serif; font-size: 20px; letter-spacing: 2px; grid-row: span 2; }
+  .numpad-btn.done:active { filter: brightness(0.8); }
+
+  input.numpad-active { background-color: rgba(212, 175, 55, 0.25) !important; border-color: #d4af37 !important; box-shadow: 0 0 15px rgba(212, 175, 55, 0.8) !important; color: #d4af37 !important; position: relative; z-index: 9999; }
+
+  /* 画像保存用ポップアップ */
+  .save-image-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 10000; display: none; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(5px); padding: 20px; overflow-y: auto; }
+  .save-image-overlay.show { display: flex; }
+  .save-image-overlay img { max-width: 100%; max-height: 60vh; border: 3px solid #d4af37; box-shadow: 0 10px 30px rgba(0,0,0,1); margin-bottom: 20px; object-fit: contain; }
+  .save-image-text { color: #f1c40f; font-size: 16px; font-weight: bold; text-align: center; margin-bottom: 20px; letter-spacing: 1px; line-height: 1.5; flex-shrink: 0; }
+  .save-image-close { background: linear-gradient(145deg, #e74c3c, #c0392b); color: #fff; border: none; padding: 15px 30px; border-radius: 50px; font-weight: bold; cursor: pointer; font-size: 16px; letter-spacing: 1px; box-shadow: 0 5px 15px rgba(231, 76, 60, 0.5); width: 100%; max-width: 300px; flex-shrink: 0; }
+  .save-image-cancel { background: transparent; color: #fff; border: 1px solid #7f8fa6; padding: 12px 30px; border-radius: 50px; font-weight: bold; cursor: pointer; font-size: 14px; letter-spacing: 1px; margin-top: 15px; width: 100%; max-width: 300px; flex-shrink: 0; }
+
+  /* 📱 スマホ向け */
   @media screen and (max-width: 900px) {
-    body { padding: 10px; display: block; overflow-x: hidden; position: relative; padding-bottom: 25px; }
-    .dashboard-container { flex-direction: column; height: auto; min-height: auto; border-radius: 8px; border-width: 1px; width: 100%; max-width: 100%; margin-bottom: 0; }
-    .dashboard-main { flex-direction: column; }
-    .left-col { border-right: none; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding: 30px 15px; }
-    .right-col { padding: 25px 15px; gap: 20px; }
-    
-    .suits { font-size: 32px; }
-    h1 { font-size: 36px; } 
-    .timer-display { font-size: 56px; padding: 10px 20px; margin-bottom: 10px; }
-    .board-title { font-size: 18px; text-align: center; justify-content: center; margin-right: -4px; }
-    .board-title::before { display: none; }
-    .title-re-entry { letter-spacing: 1px; font-size: 16px; }
-    .title-re-entry .title-skull { display: none; }
-    
-    .live-ranking-list { height: auto; padding-right: 0; overflow: hidden; }
-    .live-rank-card { padding: 10px 15px; border-radius: 0 4px 4px 0; border-left-width: 3px; }
-    .live-rank-card .card-skull-bg { width: 90px; height: 90px; }
-    .rank-col { width: 55px; flex-shrink: 0; }
-    .rank-badge-text { font-size: 26px; }
-    .worst-1 .rank-badge-text { font-size: 30px; letter-spacing: 2px; }
-    .name-col { padding-left: 10px; gap: 2px; overflow: hidden; }
-    .player-name-item { font-size: 15px; }
-    .worst-1 .player-name-item { font-size: 16px; }
-    .entry-col { width: 85px; flex-shrink: 0; }
-    .entry-badge .num { font-size: 24px; }
-    .entry-badge .unit { font-size: 10px; }
-    .title-active { margin-top: 10px; }
-    .active-players-grid { justify-content: center; max-height: none; overflow: hidden; }
-    
-    .nav-buttons { display: flex; position: static; justify-content: center; margin-top: 15px; margin-bottom: 10px; gap: 10px; width: 100%; }
-    .discreet-btn { padding: 10px 15px; font-size: 11px; }
-    
-    .secret-btn { position: absolute; top: 15px; right: 15px; left: auto; font-size: 18px; padding: 0; margin: 0; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.5); z-index: 100; }
-    
-    .footer-text { position: absolute; bottom: 5px; left: 0; width: 100%; text-align: center; margin: 0; padding: 0; display: block; font-size: 10px; z-index: 10; }
-    
-    .new-challenger-title { font-size: 40px; text-shadow: 2px 2px 0 #000, -1px -1px 0 #fff, 0 0 10px #ff4757; }
-    .new-challenger-name { font-size: 50px; -webkit-text-stroke: 2px #000; text-shadow: 3px 3px 0 #d4af37, 6px 6px 0 #000, 0 0 20px rgba(212,175,55,0.8); letter-spacing: 4px; }
+    /* ★修正: min-heightを100dvhに設定、パディングを減らし、下部マージンを無くす */
+    body { padding: 10px 5px; height: auto; min-height: 100dvh; display: block; overflow-x: hidden; padding-bottom: 15px; }
+    .container { padding: 15px; border-radius: 12px; width: 100%; max-width: 100%; height: auto; min-height: auto; display: block; position: relative; padding-top: 45px; box-sizing: border-box; margin-bottom: 0; padding-bottom: 15px; }
+    h2 { font-size: 20px; letter-spacing: 2px; margin-bottom: 15px; padding-top: 10px; }
+    .discreet-next-btn { position: absolute; top: 15px; left: 15px; font-size: 10px; padding: 5px 10px; margin: 0; }
+    .timer-display-small { font-size: 36px; }
+    .timer-btns { flex-wrap: wrap; gap: 8px; }
+    .t-btn { font-size: 12px; padding: 10px 0; }
+    .table-wrapper { overflow-x: hidden; box-shadow: none; background: transparent; margin-bottom: 10px; flex-grow: 0; }
+    table { min-width: 0 !important; width: 100%; border: none; }
+    table, thead, tbody, tr, td { display: block; }
+    thead { display: none; }
+    tr { background: linear-gradient(145deg, rgba(20, 25, 30, 0.9), rgba(0, 0, 0, 0.9)); margin-bottom: 20px; border-radius: 12px; border: 1px solid rgba(212, 175, 55, 0.4); padding: 15px 15px 55px 15px; position: relative; box-shadow: 0 6px 15px rgba(0,0,0,0.5); }
+    td { padding: 8px 0; border: none; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px dashed rgba(255, 255, 255, 0.1); width: 100%; box-sizing: border-box; }
+    td:nth-last-child(2) { border-bottom: none; justify-content: flex-end; padding-top: 15px; }
+    .checkout-btn { width: auto; padding: 10px 25px; }
+    td[data-label="名前"] { flex-direction: column; align-items: flex-start; border-bottom: 1px solid rgba(212, 175, 55, 0.3); padding-bottom: 15px; margin-bottom: 10px; }
+    td[data-label="名前"]::before { width: 100%; color: #d4af37; margin-bottom: 8px; font-size: 14px; letter-spacing: 1px; }
+    td[data-label="名前"] input { width: 100%; font-size: 18px; padding: 12px; background: rgba(255,255,255,0.05); }
+    td:not([data-label="名前"])::before { content: attr(data-label); color: #bdc3c7; font-size: 13px; width: 40%; flex-shrink: 0; font-weight: bold; text-align: left; }
+    td:not([data-label="名前"]) input { width: 60%; flex-grow: 1; padding: 10px; text-align: right; min-width: 0; }
+    input.numpad-trigger { cursor: pointer; caret-color: transparent; font-size: 20px; }
+    td:last-child { position: absolute; bottom: 12px; left: 15px; padding: 0; display: block; width: auto; border: none; }
+    .summary { flex-direction: column; align-items: flex-start; gap: 12px; font-size: 16px; padding: 15px; width: 100%; box-sizing: border-box; }
+    #totalPay { font-size: 26px !important; }
+    .btn-group { flex-direction: column; gap: 10px; width: 100%; margin-bottom: 0; }
+    .save-btn, .add-btn, .sheet-btn { font-size: 16px; padding: 16px; width: 100%; box-sizing: border-box; }
   }
 
-  .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
-  .modal-content { background: #121212; padding: 40px; border-radius: 8px; border: 1px solid #333; text-align: center; width: 90%; max-width: 400px; box-shadow: 0 0 30px rgba(0,0,0,1); }
-  .modal-content h3 { color: #ffffff; margin-top: 0; font-size: 20px; margin-bottom: 10px; letter-spacing: 3px; text-transform: uppercase; }
-  .modal-content p { font-size: 14px; color: #7f8fa6; margin-bottom: 25px; letter-spacing: 1px; }
-  #adminPass { width: 160px; padding: 15px; font-size: 42px; text-align: center; letter-spacing: 12px; border-radius: 4px; border: 1px solid #555; background: #000; color: #d4af37; margin-bottom: 30px; outline: none; transition: all 0.3s; font-family: 'Courier New', monospace; padding-left: 24px; }
-  #adminPass:focus { border-color: #d4af37; box-shadow: 0 0 15px rgba(212, 175, 55, 0.3); }
-  .modal-close-btn { background: transparent; color: #7f8fa6; border: 1px solid #555; padding: 12px 35px; border-radius: 50px; cursor: pointer; font-size: 14px; transition: all 0.3s; letter-spacing: 2px; text-transform: uppercase; }
-  .modal-close-btn:hover { background: #ffffff; color: #000; border-color: #ffffff; }
-
-  .new-challenger-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0); z-index: 10000; display: flex; flex-direction: column; justify-content: center; align-items: center; animation: flashBg 1s ease-out forwards; overflow: hidden; pointer-events: none; }
-  @keyframes flashBg { 0% { background: rgba(0, 0, 0, 0); } 100% { background: rgba(0, 0, 0, 0.95); } }
+  /* 画像生成用エリア */
+  #reportArea { position: absolute; top: -99999px; left: 0; background: radial-gradient(circle at center, #1a5c38 0%, #0a2e1c 100%); color: #ffffff; padding: 60px 40px; box-sizing: border-box; display: flex; flex-direction: column; border: 15px solid #d4af37; width: 1200px; height: auto !important; min-height: 800px; }
+  .report-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid #d4af37; padding-bottom: 30px; margin-bottom: 30px; }
+  .report-title { font-size: 64px; color: #d4af37; font-weight: bold; letter-spacing: 8px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+  .report-suits { font-size: 42px; letter-spacing: 15px; }
+  .report-red { color: #e74c3c; }
+  .report-meta { font-size: 24px; color: #bdc3c7; text-align: right; line-height: 1.6; }
+  .report-table { width: 100%; border-collapse: collapse; margin-bottom: 40px; }
+  .report-table th, .report-table td { border: 1px solid rgba(255,255,255,0.2); padding: 18px 12px; text-align: center; font-size: 20px; }
+  .report-table th { background-color: #1a252f; color: #d4af37; font-weight: bold; font-size: 22px; }
+  .report-table td.name-cell { text-align: left; font-weight: bold; }
+  .report-table td.pay-cell { font-weight: bold; font-size: 28px; }
+  .report-plus { color: #2ecc71; }
+  .report-minus { color: #e74c3c; }
+  .report-footer { display: flex; justify-content: space-between; align-items: center; font-size: 24px; color: #bdc3c7; border-top: 2px solid rgba(255,255,255,0.3); padding-top: 30px; margin-top: auto; }
+  .report-total-pay-box { background: rgba(0,0,0,0.4); padding: 15px 30px; border-radius: 8px; border: 2px solid #d4af37; color: #fff; font-size: 32px; font-weight: bold; }
 </style>
 </head>
 <body>
-  
-  <div class="dashboard-container">
-    <div class="dashboard-main">
-      <div class="left-col">
-        <div class="suits">
-          <span class="suit-black">♠</span><span class="suit-red">♥</span><span class="suit-black">♣</span><span class="suit-red">♦</span>
-        </div>
-        <h1>KEYpro<span>poker</span></h1>
-        <p class="subtitle">Official Dashboard</p>
-        
-        <div class="date-header" id="todayDate">----/--/--</div>
-        
-        <div class="timer-label">SESSION TIME</div>
-        <div class="timer-display" id="mainTimer">00:00</div>
-      </div>
 
-      <div class="right-col">
-        <div class="board-title title-re-entry">
-          RE-ENTRY RANKING
-          <svg class="title-skull" viewBox="0 0 448 512"><path d="M439.2 236.1l-20.1-11.9c-6.4-3.8-14.6-1.6-18.4 5.1-18.9 34.6-56.3 58.7-99.1 58.7-42.8 0-80.1-24.1-99.1-58.7-3.8-6.7-12-8.9-18.4-5.1l-20.1 11.9c-6.7 4-8.9 12.6-5 19.3C181.8 290.4 200.7 320 224 320s42.2-29.6 66.8-64.7c3.9-6.7 1.7-15.3-5-19.3zm-111.2-120c0-13.3-10.7-24-24-24s-24 10.7-24 24 10.7 24 24 24 24-10.7 24-24zm64 0c0-13.3-10.7-24-24-24s-24 10.7-24 24 10.7 24 24 24 24-10.7 24-24zM224 0C100.3 0 0 100.3 0 224v192c0 53 43 96 96 96h256c53 0 96-43 96-96V224C448 100.3 347.7 0 224 0zm96 416c0 17.7-14.3 32-32 32s-32-14.3-32-32 14.3-32 32-32 32 14.3 32 32zm-128 0c0 17.7-14.3 32-32 32s-32-14.3-32-32 14.3-32 32-32 32 14.3 32 32zm160-224C352 110.3 294.5 48 224 48s-128 62.3-128 144v14.1c0 23.6 15.1 44.8 36.9 52.8l10.8 4c16.3 6 30.1 16.6 39.4 30.2 11.2-16.1 27.6-29 46.9-36l10.8-4c21.8-8 36.9-29.2 36.9-52.8V192zm-32 96c-17.7 0-32 14.3-32 32s14.3 32 32 32 32-14.3 32-32-14.3-32-32-32zm-128 0c-17.7 0-32 14.3-32 32s14.3 32 32 32 32-14.3 32-32-14.3-32-32-32z"/></svg>
-        </div>
-        <div id="topLiveBoard" class="live-ranking-list">
-          <div class="empty-text">現在リエントリー中のプレイヤーはいません<br><span>🕊 ALL PLAYERS SURVIVING</span></div>
-        </div>
+  <div class="container">
+    <a href="index.html" class="discreet-next-btn">DASHBOARD</a>
+    
+    <h2>チップ精算</h2>
 
-        <div class="board-title title-active">ACTIVE PLAYERS</div>
-        <div id="activePlayersBoard" class="active-players-grid">
-          <div class="empty-text">現在プレイ中の参加者はいません</div>
-        </div>
+    <div class="timer-control">
+      <div class="timer-control-title">⏱️ プレイ時間タイマー (全画面連動)</div>
+      <div id="controlTimer" class="timer-display-small">00:00</div>
+      <div class="timer-btns">
+        <button class="t-btn btn-start" onclick="window.timerAction('start')">▶ START</button>
+        <button class="t-btn btn-stop" onclick="window.timerAction('stop')">⏸ STOP</button>
+        <button class="t-btn btn-reset" onclick="window.timerAction('reset')">🔄 RESET</button>
       </div>
     </div>
-    
-    <div class="nav-buttons">
-      <a href="ranking.html" class="discreet-btn">HALL OF FAME</a>
-      <a href="rules.html" class="discreet-btn">HOW TO PLAY</a>
+
+    <div class="table-wrapper">
+      <table id="calcTable">
+        <thead>
+          <tr>
+            <th>プレイヤー名</th>
+            <th>エントリー</th>
+            <th>最終持ち点</th>
+            <th>精算後 (点)</th>
+            <th>Pay</th>
+            <th>途中退出</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+        </tbody>
+      </table>
+    </div>
+
+    <div class="draft-notice">🔄 全員の画面とリアルタイム同期中...</div>
+
+    <div class="summary" id="checkResult">
+      <div><span class="total-label">合計 Pay:</span> <span id="totalPay" style="font-size: 24px;">0</span></div>
+      <div id="statusMessage" class="match"><span class="status-badge">✨ 確認済 (誤差なし)</span></div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn add-btn" onclick="window.addRow()">+ プレイヤー行を追加</button>
+      <a href="https://docs.google.com/spreadsheets/d/1dGDNvdrfvb8RufXz6pksBCV52uQSDwPVc446graHYWI/edit?gid=0#gid=0" target="_blank" class="btn sheet-btn">📊 記録シートを表示</a>
+      <button class="btn save-btn" id="saveBtn" onclick="window.confirmAndSave()">💾 成績を確定して画像を保存</button>
     </div>
   </div>
 
-  <button class="secret-btn" onclick="showPasswordModal()">⚙</button>
-  <div class="footer-text">© 2026 KEYpro poker Server</div>
+  <div id="numpadOverlay" class="numpad-overlay" onclick="window.closeCustomNumpad()"></div>
+  <div id="customNumpad" class="custom-numpad">
+    <div class="numpad-grid">
+      <button class="numpad-btn" onclick="window.numpadType('1')">1</button>
+      <button class="numpad-btn" onclick="window.numpadType('2')">2</button>
+      <button class="numpad-btn" onclick="window.numpadType('3')">3</button>
+      <button class="numpad-btn action" onclick="window.numpadDel()">⌫</button>
+      <button class="numpad-btn" onclick="window.numpadType('4')">4</button>
+      <button class="numpad-btn" onclick="window.numpadType('5')">5</button>
+      <button class="numpad-btn" onclick="window.numpadType('6')">6</button>
+      <button class="numpad-btn action" onclick="window.numpadClear()">C</button>
+      <button class="numpad-btn" onclick="window.numpadType('7')">7</button>
+      <button class="numpad-btn" onclick="window.numpadType('8')">8</button>
+      <button class="numpad-btn" onclick="window.numpadType('9')">9</button>
+      <button class="numpad-btn done" onclick="window.closeCustomNumpad()">完 了</button>
+      <button class="numpad-btn" onclick="window.numpadType('0')">0</button>
+      <button class="numpad-btn" onclick="window.numpadType('00')">00</button>
+      <button class="numpad-btn" onclick="window.numpadType('000')">000</button>
+    </div>
+  </div>
 
-  <div id="passModal" class="modal-overlay">
-    <div class="modal-content">
-      <h3>HOST AUTHENTICATION</h3>
-      <p>ENTER 4-DIGIT PIN</p>
-      <input type="password" id="adminPass" maxlength="4" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
-      <br>
-      <button class="modal-close-btn" onclick="closeModal()">CANCEL</button>
+  <div id="saveImageOverlay" class="save-image-overlay">
+    <div class="save-image-text">✨ レポート画像が生成されました！<br>下の画像を【長押し】して<br>【"写真"に保存】を選んでください。</div>
+    <img id="generatedImage" src="" alt="Session Report">
+    <button class="save-image-close" onclick="window.closeAndReset()">保存完了！リセットして次へ</button>
+    <button class="save-image-cancel" onclick="window.closeSaveImageOverlay()">そのまま閉じる</button>
+  </div>
+
+  <div id="reportArea">
+    <div class="report-header">
+      <div style="display:flex; align-items:center; gap:30px;">
+        <div class="report-suits"><span>♠</span><span class="report-red">♥</span><span>♣</span><span class="report-red">♦</span></div>
+        <div class="report-title">SESSION REPORT</div>
+      </div>
+      <div class="report-meta">
+        <div id="reportDate">0000年00月00日</div>
+        <div>Global Time: <span id="reportTime">00:00:00</span></div>
+      </div>
+    </div>
+    <table class="report-table">
+      <thead><tr><th>Rank</th><th>Player</th><th>Time</th><th>Entry</th><th>Final Chips</th><th>Score (点)</th><th>Pay</th></tr></thead>
+      <tbody id="reportTableBody"></tbody>
+    </table>
+    <div class="report-footer">
+      <div class="report-total-pay-box">Total Pay: <span id="reportTotalPay">0</span> (Confirmed)</div>
+      <div style="display:flex; align-items:center; gap:15px;">
+        <div class="report-suits" style="font-size:20px;"><span>♠</span><span class="report-red">♥</span><span>♣</span><span class="report-red">♦</span></div>
+        <div style="font-weight:bold;">KEYpro poker Server</div>
+      </div>
     </div>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+    import { getDatabase, ref, set, update, onValue } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDWO4bFy5lAHALlnKr32b9TTTXNcNQuIqU",
@@ -339,250 +280,6 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbxijPOgmKGDL-UL5eAqOBKrxKVfPl4v6hsdLcWbiuwMrCWSPI5fqxu3qOmXIFTrMYCi5A/exec";
-
-    let displayedNames = [];
-    let pendingNames = [];
-    let isFirstLoad = true;
-    let latestData = []; 
-    let top3Players = {};
-    
-    let globalHofData = [];
-
-    function formatNumber(num) {
-      return Number(num).toLocaleString();
-    }
-
-    fetch(GAS_URL, { redirect: 'follow' })
-      .then(res => res.json())
-      .then(players => {
-        if (players && players.length > 0) {
-          globalHofData = players; 
-          if(players[0]) top3Players[players[0].name] = 1;
-          if(players[1]) top3Players[players[1].name] = 2;
-          if(players[2]) top3Players[players[2].name] = 3;
-          if(latestData.length > 0) renderBoard(latestData);
-        }
-      })
-      .catch(e => console.error("HOF Load Error", e));
-
-    function triggerNewChallenger(playerName) {
-      const container = document.createElement('div');
-      container.className = 'new-challenger-overlay';
-      const title = document.createElement('div');
-      title.className = 'new-challenger-title';
-      title.innerText = 'NEW CHALLENGER!';
-      const nameDiv = document.createElement('div');
-      nameDiv.className = 'new-challenger-name';
-      nameDiv.innerText = playerName + '\nJOINED!';
-      
-      container.appendChild(title);
-      container.appendChild(nameDiv);
-      document.body.appendChild(container);
-
-      const effectPatterns = [
-        { type: 'chip', anim: 'fall' }, { type: 'card', anim: 'fall' }, { type: 'gold', anim: 'fall' }, 
-        { type: 'laser', anim: 'fall' }, { type: 'confetti', anim: 'fall' }, { type: 'firework', anim: 'rise' }, 
-        { type: 'slot', anim: 'fall' }, { type: 'hand', anim: 'zoom' }, { type: 'ring', anim: 'explode' }, { type: 'star', anim: 'explode' }
-      ];
-      const effect = effectPatterns[Math.floor(Math.random() * effectPatterns.length)];
-      const count = window.innerWidth < 600 ? 30 : 70; 
-      const colors = ['#e74c3c', '#3498db', '#f1c40f', '#2ecc71', '#9b59b6', '#ffffff'];
-      const suits = ['♠', '♥', '♣', '♦'];
-      const slots = ['7', 'BAR', '🍒', '🔔', '💎'];
-      const ranks = ['A', 'K', 'Q', 'J', '10'];
-
-      for (let i = 0; i < count; i++) {
-        const p = document.createElement('div');
-        p.className = 'particle';
-        let dur = Math.random() * 3 + 3; 
-        let delay = Math.random() * 0.5;
-        p.style.left = (Math.random() * 100) + 'vw';
-        p.style.setProperty('--tx', (Math.random() * 100) + 'vw');
-        p.style.setProperty('--ty', (Math.random() * 100) + 'vh');
-        p.style.setProperty('--s', Math.random() * 2 + 1);
-
-        if (effect.type === 'chip') {
-          p.style.width = '50px'; p.style.height = '50px'; p.style.borderRadius = '50%';
-          p.style.border = '4px dashed rgba(255,255,255,0.7)'; p.style.background = colors[Math.floor(Math.random() * colors.length)];
-          p.innerText = suits[Math.floor(Math.random() * suits.length)]; p.style.color = '#fff'; p.style.fontSize = '20px'; p.style.boxShadow = '0 5px 10px rgba(0,0,0,0.5)';
-        } else if (effect.type === 'card') {
-          p.style.width = '40px'; p.style.height = '60px'; p.style.background = '#fff'; p.style.borderRadius = '4px';
-          let suit = suits[Math.floor(Math.random() * suits.length)]; p.innerText = suit; p.style.color = (suit === '♥' || suit === '♦') ? '#e74c3c' : '#2c3e50';
-          p.style.fontSize = '24px'; p.style.border = '1px solid #ccc';
-        } else if (effect.type === 'gold') {
-          if (Math.random() > 0.5) { p.style.width = '40px'; p.style.height = '40px'; p.style.borderRadius = '50%'; p.style.background = 'radial-gradient(circle, #f1c40f, #d35400)'; p.innerText = '¥'; p.style.color = '#fff'; p.style.fontSize = '20px';
-          } else { p.style.width = '50px'; p.style.height = '25px'; p.style.background = '#27ae60'; p.style.borderRadius = '2px'; p.innerText = '$'; p.style.color = '#fff'; }
-        } else if (effect.type === 'confetti') { p.style.width = '15px'; p.style.height = '15px'; p.style.background = colors[Math.floor(Math.random() * colors.length)]; dur = Math.random() * 4 + 3; 
-        } else if (effect.type === 'slot') { p.innerText = slots[Math.floor(Math.random() * slots.length)]; p.style.fontSize = '45px';
-        } else if (effect.type === 'star') { p.innerText = '★'; p.style.color = colors[Math.floor(Math.random() * colors.length)]; p.style.fontSize = (Math.random() * 30 + 20) + 'px'; p.style.textShadow = '0 0 10px #fff';
-        } else if (effect.type === 'firework') { p.style.width = '10px'; p.style.height = '10px'; p.style.borderRadius = '50%'; p.style.background = colors[Math.floor(Math.random() * colors.length)]; p.style.boxShadow = '0 0 20px ' + p.style.background; p.style.setProperty('--tx', ((Math.random() - 0.5) * 50) + 'vw');
-        } else if (effect.type === 'laser') { p.style.width = '4px'; p.style.height = '150px'; p.style.background = colors[Math.floor(Math.random() * colors.length)]; p.style.boxShadow = '0 0 20px ' + p.style.background; dur = Math.random() * 1 + 0.5; 
-        } else if (effect.type === 'ring') { p.style.width = '50px'; p.style.height = '50px'; p.style.borderRadius = '50%'; p.style.border = '5px solid ' + colors[Math.floor(Math.random() * colors.length)]; p.style.boxShadow = '0 0 15px ' + p.style.borderColor; p.style.setProperty('--s', Math.random() * 4 + 2);
-        } else if (effect.type === 'hand') { let suit = suits[Math.floor(Math.random() * suits.length)]; let rank = ranks[Math.floor(Math.random() * ranks.length)]; p.innerText = rank + suit; p.style.fontSize = '30px'; p.style.color = (suit === '♥' || suit === '♦') ? '#e74c3c' : '#2c3e50'; p.style.background = '#fff'; p.style.padding = '5px 10px'; p.style.borderRadius = '5px'; p.style.border = '2px solid #d4af37'; p.style.left = '50vw'; p.style.top = '50vh'; p.style.setProperty('--s', Math.random() * 3 + 1.5); }
-        p.style.animation = `${effect.anim} ${dur}s linear ${delay}s forwards`;
-        container.appendChild(p);
-      }
-      setTimeout(() => { container.style.opacity = '0'; container.style.transition = 'opacity 1s ease'; setTimeout(() => container.remove(), 1000); }, 5000);
-    }
-
-    function applyAutoScale() {
-      const rankContainer = document.getElementById('topLiveBoard');
-      if (rankContainer) {
-        const wrapper = rankContainer.querySelector('.scale-wrapper');
-        if (wrapper) {
-          wrapper.style.transform = 'scale(1)';
-          wrapper.style.width = '100%';
-          const availableHeight = rankContainer.clientHeight;
-          const contentHeight = wrapper.scrollHeight;
-          if (contentHeight > availableHeight && availableHeight > 0) {
-            const scale = (availableHeight / contentHeight) * 0.98; 
-            wrapper.style.transform = `scale(${scale})`;
-            wrapper.style.width = `${100 / scale}%`; 
-          }
-        }
-      }
-
-      const activeContainer = document.getElementById('activePlayersBoard');
-      if (activeContainer) {
-        const wrapper = activeContainer.querySelector('.scale-wrapper');
-        if (wrapper) {
-          wrapper.style.transform = 'scale(1)';
-          wrapper.style.width = '100%';
-          const availableHeight = activeContainer.clientHeight;
-          const contentHeight = wrapper.scrollHeight;
-          if (contentHeight > availableHeight && availableHeight > 0) {
-            const scale = (availableHeight / contentHeight) * 0.98;
-            wrapper.style.transform = `scale(${scale})`;
-            wrapper.style.width = `${100 / scale}%`; 
-          }
-        }
-      }
-    }
-
-    window.addEventListener('resize', applyAutoScale);
-
-    function renderBoard(data) {
-      const playersBoard = document.getElementById('activePlayersBoard');
-      const rankingBoard = document.getElementById('topLiveBoard');
-      
-      let activePlayers = [];
-      let reEntryPlayers = [];
-
-      data.forEach(player => {
-        if (player.name && player.name.trim() !== "" && displayedNames.includes(player.name) && player.entry > 0) { 
-          activePlayers.push({ name: player.name });
-          if (player.entry > 1) {
-            reEntryPlayers.push({ name: player.name, reEntry: player.entry - 1 });
-          }
-        }
-      });
-
-      let html = '';
-      if (reEntryPlayers.length > 0) {
-        let groups = {};
-        reEntryPlayers.forEach(p => {
-          let key = p.reEntry; 
-          if (!groups[key]) { groups[key] = { reEntry: p.reEntry, names: [] }; }
-          groups[key].names.push(p.name);
-        });
-
-        let groupArray = Object.values(groups);
-        groupArray.sort((a, b) => b.reEntry - a.reEntry);
-
-        groupArray.forEach((group, index) => {
-          let rankStr = String(index + 1).padStart(2, '0');
-          let rankClass = "worst-other";
-          if (index === 0) { rankClass = "worst-1"; }
-          else if (index === 1) { rankClass = "worst-2"; }
-          else if (index === 2) { rankClass = "worst-3"; }
-
-          let namesHtml = group.names.map(name => `<div class="player-name-item">${name}</div>`).join('');
-          let entryText = `<span class="num">${group.reEntry}</span><span class="unit">RE</span>`;
-
-          html += `
-            <div class="live-rank-card ${rankClass}">
-              <svg class="card-skull-bg" viewBox="0 0 448 512"><path d="M439.2 236.1l-20.1-11.9c-6.4-3.8-14.6-1.6-18.4 5.1-18.9 34.6-56.3 58.7-99.1 58.7-42.8 0-80.1-24.1-99.1-58.7-3.8-6.7-12-8.9-18.4-5.1l-20.1 11.9c-6.7 4-8.9 12.6-5 19.3C181.8 290.4 200.7 320 224 320s42.2-29.6 66.8-64.7c3.9-6.7 1.7-15.3-5-19.3zm-111.2-120c0-13.3-10.7-24-24-24s-24 10.7-24 24 10.7 24 24 24 24-10.7 24-24zm64 0c0-13.3-10.7-24-24-24s-24 10.7-24 24 10.7 24 24 24 24-10.7 24-24zM224 0C100.3 0 0 100.3 0 224v192c0 53 43 96 96 96h256c53 0 96-43 96-96V224C448 100.3 347.7 0 224 0zm96 416c0 17.7-14.3 32-32 32s-32-14.3-32-32 14.3-32 32-32 32 14.3 32 32zm-128 0c0 17.7-14.3 32-32 32s-32-14.3-32-32 14.3-32 32-32 32 14.3 32 32zm160-224C352 110.3 294.5 48 224 48s-128 62.3-128 144v14.1c0 23.6 15.1 44.8 36.9 52.8l10.8 4c16.3 6 30.1 16.6 39.4 30.2 11.2-16.1 27.6-29 46.9-36l10.8-4c21.8-8 36.9-29.2 36.9-52.8V192zm-32 96c-17.7 0-32 14.3-32 32s14.3 32 32 32 32-14.3 32-32-14.3-32-32-32zm-128 0c-17.7 0-32 14.3-32 32s14.3 32 32 32 32-14.3 32-32-14.3-32-32-32z"/></svg>
-              <div class="rank-col"><div class="rank-badge-text">${rankStr}</div></div>
-              <div class="name-col">${namesHtml}</div>
-              <div class="entry-col"><div class="entry-badge">${entryText}</div></div>
-            </div>
-          `;
-        });
-      }
-      
-      let pureRankHtml = html || '<div class="empty-text">現在リエントリー中のプレイヤーはいません<br><span>🕊 ALL PLAYERS SURVIVING</span></div>';
-      let wrappedRankHtml = `<div class="scale-wrapper" style="width: 100%; display: flex; flex-direction: column; gap: 12px; transform-origin: top left; transition: transform 0.3s ease;">${pureRankHtml}</div>`;
-      
-      if (rankingBoard.dataset.state !== pureRankHtml) {
-        rankingBoard.innerHTML = wrappedRankHtml;
-        rankingBoard.dataset.state = pureRankHtml;
-      }
-
-      let playersHtml = '';
-      if (activePlayers.length > 0) {
-        activePlayers.forEach(p => {
-          let crownSvg = '';
-          let tagClass = 'player-tag';
-          if (top3Players[p.name] === 1) {
-              crownSvg = `<svg class="crown-icon crown-gold" viewBox="0 0 512 512"><path d="M493.4 24.6l-104 192C385.6 224.2 376.5 229 366.1 226.7l-94.2-20.9L288 32c0-17.7-14.3-32-32-32s-32 14.3-32 32l16.1 173.8-94.2 20.9c-10.3 2.3-19.4-2.5-23.2-10.1l-104-192C15.4 10.3 4.2 13 1 24.6c-3.2 11.6 2 24 13.5 28.5L128 100.9l-11.2 266c-.6 13.5 10 25.1 23.5 25.1h231.4c13.5 0 24.1-11.6 23.5-25.1l-11.2-266 113.5-47.8c11.5-4.5 16.7-16.9 13.5-28.5c-3.2-11.6-14.4-14.3-18.1-10.1zM80 448c0-17.7 14.3-32 32-32h288c17.7 0 32 14.3 32 32s-14.3 32-32 32H112c-17.7 0-32-14.3-32-32z"/></svg>`;
-              tagClass += ' vip-tag-1';
-          } else if (top3Players[p.name] === 2) {
-              crownSvg = `<svg class="crown-icon crown-silver" viewBox="0 0 512 512"><path d="M493.4 24.6l-104 192C385.6 224.2 376.5 229 366.1 226.7l-94.2-20.9L288 32c0-17.7-14.3-32-32-32s-32 14.3-32 32l16.1 173.8-94.2 20.9c-10.3 2.3-19.4-2.5-23.2-10.1l-104-192C15.4 10.3 4.2 13 1 24.6c-3.2 11.6 2 24 13.5 28.5L128 100.9l-11.2 266c-.6 13.5 10 25.1 23.5 25.1h231.4c13.5 0 24.1-11.6 23.5-25.1l-11.2-266 113.5-47.8c11.5-4.5 16.7-16.9 13.5-28.5c-3.2-11.6-14.4-14.3-18.1-10.1zM80 448c0-17.7 14.3-32 32-32h288c17.7 0 32 14.3 32 32s-14.3 32-32 32H112c-17.7 0-32-14.3-32-32z"/></svg>`;
-              tagClass += ' vip-tag-2';
-          } else if (top3Players[p.name] === 3) {
-              crownSvg = `<svg class="crown-icon crown-bronze" viewBox="0 0 512 512"><path d="M493.4 24.6l-104 192C385.6 224.2 376.5 229 366.1 226.7l-94.2-20.9L288 32c0-17.7-14.3-32-32-32s-32 14.3-32 32l16.1 173.8-94.2 20.9c-10.3 2.3-19.4-2.5-23.2-10.1l-104-192C15.4 10.3 4.2 13 1 24.6c-3.2 11.6 2 24 13.5 28.5L128 100.9l-11.2 266c-.6 13.5 10 25.1 23.5 25.1h231.4c13.5 0 24.1-11.6 23.5-25.1l-11.2-266 113.5-47.8c11.5-4.5 16.7-16.9 13.5-28.5c-3.2-11.6-14.4-14.3-18.1-10.1zM80 448c0-17.7 14.3-32 32-32h288c17.7 0 32 14.3 32 32s-14.3 32-32 32H112c-17.7 0-32-14.3-32-32z"/></svg>`;
-              tagClass += ' vip-tag-3';
-          }
-
-          let pData = globalHofData.find(h => h.name === p.name);
-          let rank = "-";
-          let games = 0;
-          let pay = 0;
-
-          if (pData) {
-            rank = globalHofData.indexOf(pData) + 1;
-            games = pData.games || 0;
-            pay = pData.pay || 0;
-          }
-
-          let payStr = formatNumber(pay);
-          let payClass = "stat-val";
-          if(pay > 0) {
-            payClass = "stat-val plus";
-            payStr = "+" + payStr;
-          } else if (pay < 0) {
-            payClass = "stat-val minus";
-          }
-
-          playersHtml += `
-            <div class="${tagClass}" onclick="this.classList.toggle('open'); setTimeout(applyAutoScale, 50);">
-              <div class="tag-header">
-                <span class="tag-name">${p.name}</span>
-                ${crownSvg}
-              </div>
-              <div class="player-stats">
-                <div class="stats-grid">
-                  <div class="stat-item"><span class="stat-label">RANK</span><span class="stat-val">${rank}位</span></div>
-                  <div class="stat-item"><span class="stat-label">GAMES</span><span class="stat-val">${games}</span></div>
-                  <div class="stat-item"><span class="stat-label">PAY</span><span class="${payClass}">${payStr}</span></div>
-                </div>
-              </div>
-            </div>
-          `;
-        });
-      }
-
-      let purePlayersHtml = playersHtml || '<div class="empty-text">現在プレイ中の参加者はいません</div>';
-      let wrappedPlayersHtml = `<div class="scale-wrapper" style="width: 100%; display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; transform-origin: top center; transition: transform 0.3s ease;">${purePlayersHtml}</div>`;
-      
-      if (playersBoard.dataset.state !== purePlayersHtml) {
-        playersBoard.innerHTML = wrappedPlayersHtml;
-        playersBoard.dataset.state = purePlayersHtml;
-      }
-
-      setTimeout(applyAutoScale, 50);
-    }
 
     let currentTimerState = { running: false, elapsedSeconds: 0, lastUpdate: Date.now() };
     onValue(ref(db, 'pokerSession/timer'), (snapshot) => {
@@ -590,7 +287,7 @@
       if (data) currentTimerState = data;
     });
 
-    setInterval(() => {
+    function getFormattedTime() {
       let currentElapsed = currentTimerState.elapsedSeconds;
       if (currentTimerState.running) {
         const elapsedSinceUpdate = Math.floor((Date.now() - currentTimerState.lastUpdate) / 1000);
@@ -599,75 +296,281 @@
       const h = Math.floor(currentElapsed / 3600);
       const m = Math.floor((currentElapsed % 3600) / 60);
       const s = currentElapsed % 60;
-      
-      const newTimerText = (h > 0 ? String(h).padStart(2, '0') + ':' : '') + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
-      const timerDisplay = document.getElementById('mainTimer');
-      if (timerDisplay.innerText !== newTimerText) timerDisplay.innerText = newTimerText;
-    }, 1000);
+      return (h > 0 ? String(h).padStart(2, '0') + ':' : '') + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+    }
+
+    setInterval(() => { document.getElementById('controlTimer').innerText = getFormattedTime(); }, 1000);
+
+    window.timerAction = function(action) {
+      let newState = { ...currentTimerState };
+      if (action === 'start' && !newState.running) {
+        newState.running = true; newState.lastUpdate = Date.now();
+      } else if (action === 'stop' && newState.running) {
+        newState.running = false; newState.elapsedSeconds += Math.floor((Date.now() - newState.lastUpdate) / 1000);
+      } else if (action === 'reset') {
+        if(!confirm("タイマーを0にリセットしますか？")) return;
+        newState.running = false; newState.elapsedSeconds = 0; newState.lastUpdate = Date.now();
+      }
+      currentTimerState = newState;
+      set(ref(db, 'pokerSession/timer'), newState);
+    };
+
+    let activeNumpadInput = null;
+    let activeNumpadOriginal = "";
+
+    window.handleFocus = function(el) {
+      if (window.innerWidth <= 900) return; 
+      el.dataset.orig = el.value; 
+      el.value = ""; 
+    };
+
+    window.handleBlur = function(el) {
+      if (window.innerWidth <= 900) return;
+      if (el.value === "") { el.value = el.dataset.orig || "0"; }
+      else { const raw = parseFloat(el.value.replace(/,/g, '')) || 0; el.value = formatNumber(raw); }
+      window.calculate();
+    };
+
+    window.openCustomNumpad = function(el) {
+      if (window.innerWidth > 900) return; 
+      if (activeNumpadInput) { window.closeCustomNumpad(); }
+      activeNumpadInput = el;
+      activeNumpadOriginal = el.value; 
+      el.value = ""; 
+      el.classList.add('numpad-active');
+      document.getElementById('numpadOverlay').classList.add('show');
+      document.getElementById('customNumpad').classList.add('show');
+      document.body.style.paddingBottom = "55vh"; 
+      setTimeout(() => {
+        const rect = el.getBoundingClientRect();
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        const targetY = rect.top + scrollTop - (window.innerHeight * 0.2); 
+        window.scrollTo({ top: targetY, behavior: 'smooth' });
+      }, 300); 
+      window.calculate(); 
+    };
+
+    window.closeCustomNumpad = function() {
+      if (!activeNumpadInput) return;
+      if (activeNumpadInput.value === "") { activeNumpadInput.value = activeNumpadOriginal; }
+      activeNumpadInput.classList.remove('numpad-active');
+      activeNumpadInput = null;
+      document.getElementById('numpadOverlay').classList.remove('show');
+      document.getElementById('customNumpad').classList.remove('show');
+      document.body.style.paddingBottom = "15px";
+      window.calculate();
+    };
+
+    window.numpadType = function(val) { if (activeNumpadInput) { let currentRaw = activeNumpadInput.value.replace(/,/g, ''); currentRaw += val; activeNumpadInput.value = formatNumber(parseFloat(currentRaw) || 0); window.calculate(); } };
+    window.numpadDel = function() { if (activeNumpadInput) { let currentRaw = activeNumpadInput.value.replace(/,/g, '').slice(0, -1); activeNumpadInput.value = currentRaw === "" ? "" : formatNumber(parseFloat(currentRaw) || 0); window.calculate(); } };
+    window.numpadClear = function() { if (activeNumpadInput) { activeNumpadInput.value = ""; window.calculate(); } };
+
+    const STARTING_CHIPS = 20000;
+    const RATE = 10;
+    const INITIAL_ROWS = 5;
+    let isFirstLoad = true;
+
+    function formatNumber(num) { return num.toLocaleString(); }
+
+    window.toggleCheckout = function(btn) {
+      if (btn.classList.contains('checked')) {
+        btn.classList.remove('checked');
+        btn.dataset.time = "";
+        btn.innerText = "退出";
+      } else {
+        const currentTime = getFormattedTime();
+        btn.classList.add('checked');
+        btn.dataset.time = currentTime;
+        btn.innerText = `済 ${currentTime}`;
+      }
+      window.calculate();
+    };
 
     onValue(ref(db, 'pokerSession/players'), (snapshot) => {
-      latestData = snapshot.val() || [];
-      
-      if (isFirstLoad) {
-        latestData.forEach(p => {
-          if (p.name && p.name.trim() !== "") {
-            displayedNames.push(p.name);
-          }
-        });
+      const draftData = snapshot.val();
+      const tableBody = document.getElementById('tableBody');
+      if (!draftData && isFirstLoad) {
+        tableBody.innerHTML = '';
+        for (let i = 0; i < INITIAL_ROWS; i++) { tableBody.appendChild(window.createRow()); }
         isFirstLoad = false;
-        renderBoard(latestData);
-        return;
+        window.calculate(); return;
       }
+      isFirstLoad = false;
+      const data = draftData || [];
+      while(tableBody.children.length < data.length) { tableBody.appendChild(window.createRow()); }
+      while(tableBody.children.length > data.length) { tableBody.lastChild.remove(); }
+      
+      let totalPaySum = 0;
+      data.forEach((p, index) => {
+         const row = tableBody.children[index];
+         const nameInput = row.querySelector('.name-input');
+         const entryInput = row.querySelector('.entry');
+         const chipsInput = row.querySelector('.final-chips');
+         const checkoutBtn = row.querySelector('.checkout-btn');
+         
+         if (document.activeElement !== nameInput) { nameInput.value = p.name || ""; }
+         if (entryInput !== activeNumpadInput && document.activeElement !== entryInput) { entryInput.value = formatNumber(p.entry !== undefined ? p.entry : 1); }
+         if (chipsInput !== activeNumpadInput && document.activeElement !== chipsInput) { chipsInput.value = formatNumber(p.finalChips !== undefined ? p.finalChips : 0); }
+         
+         if (p.checkoutTime) {
+           checkoutBtn.classList.add('checked');
+           checkoutBtn.dataset.time = p.checkoutTime;
+           checkoutBtn.innerText = `済 ${p.checkoutTime}`;
+         } else {
+           checkoutBtn.classList.remove('checked');
+           checkoutBtn.dataset.time = "";
+           checkoutBtn.innerText = "退出";
+         }
 
-      latestData.forEach(p => {
-        let name = p.name ? p.name.trim() : "";
-        if (name !== "" && p.entry > 0) {
-          if (!displayedNames.includes(name) && !pendingNames.includes(name)) {
-            pendingNames.push(name);
-            
-            setTimeout(() => {
-              pendingNames = pendingNames.filter(n => n !== name);
-              const stillExists = latestData.some(player => player.name === name);
-              if (stillExists) {
-                if (!displayedNames.includes(name)) {
-                  displayedNames.push(name);
-                }
-                triggerNewChallenger(name); 
-                renderBoard(latestData);
-              }
-            }, 60000); 
-          }
+         const entry = parseFloat(entryInput.value.replace(/,/g, '')) || 0;
+         const finalChips = parseFloat(chipsInput.value.replace(/,/g, '')) || 0;
+         const result = finalChips - (entry * STARTING_CHIPS);
+         const pay = result / RATE;
+         
+         row.querySelector('.result').value = formatNumber(result);
+         row.querySelector('.pay').value = formatNumber(pay);
+         totalPaySum += pay;
+      });
+      totalPaySum = Math.round(totalPaySum * 100) / 100;
+      updateStatus(totalPaySum);
+    });
+
+    window.calculate = function() {
+      const rows = document.querySelectorAll('#tableBody tr');
+      let totalPaySum = 0;
+      let draftData = []; 
+      rows.forEach(row => {
+        const name = row.querySelector('.name-input').value; 
+        const entryRaw = row.querySelector('.entry').value.replace(/,/g, '');
+        const chipsRaw = row.querySelector('.final-chips').value.replace(/,/g, '');
+        const entry = parseFloat(entryRaw) || 0;
+        const finalChips = parseFloat(chipsRaw) || 0;
+        const checkoutTime = row.querySelector('.checkout-btn').dataset.time || "";
+
+        const result = finalChips - (entry * STARTING_CHIPS);
+        const pay = result / RATE;
+        
+        row.querySelector('.result').value = formatNumber(result);
+        row.querySelector('.pay').value = formatNumber(pay);
+        totalPaySum += pay;
+        draftData.push({ name, entry, finalChips, checkoutTime });
+      });
+      totalPaySum = Math.round(totalPaySum * 100) / 100;
+      updateStatus(totalPaySum);
+      set(ref(db, 'pokerSession/players'), draftData);
+    };
+
+    function updateStatus(totalPaySum) {
+      document.getElementById('totalPay').innerText = formatNumber(totalPaySum);
+      const msg = document.getElementById('checkResult');
+      const status = document.getElementById('statusMessage');
+      if (totalPaySum === 0) { status.innerHTML = '<span class="status-badge">✨ 確認済 (誤差なし)</span>'; msg.className = "summary match"; }
+      else { status.innerHTML = `<span class="status-badge">⚠️ エラー: ${totalPaySum > 0 ? '+' : ''}${formatNumber(totalPaySum)} のズレ</span>`; msg.className = "summary error"; }
+    }
+
+    window.createRow = function(name = "", entry = 1, finalChips = 0, checkoutTime = "") {
+      const isMobile = window.innerWidth <= 900;
+      const readOnlyAttr = isMobile ? 'readonly tabindex="-1"' : '';
+      const checkoutClass = checkoutTime ? "checkout-btn checked" : "checkout-btn";
+      const checkoutText = checkoutTime ? `済 ${checkoutTime}` : "退出";
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td data-label="名前"><input type="text" class="name-input" placeholder="プレイヤー名" value="${name}" oninput="window.calculate()"></td>
+        <td data-label="エントリー"><input type="text" inputmode="numeric" class="entry numpad-trigger" value="${formatNumber(entry)}" ${readOnlyAttr} oninput="window.calculate()" onclick="window.openCustomNumpad(this)" onfocus="window.handleFocus(this)" onblur="window.handleBlur(this)"></td>
+        <td data-label="最終持ち点"><input type="text" inputmode="numeric" class="final-chips numpad-trigger" value="${formatNumber(finalChips)}" ${readOnlyAttr} oninput="window.calculate()" onclick="window.openCustomNumpad(this)" onfocus="window.handleFocus(this)" onblur="window.handleBlur(this)"></td>
+        <td data-label="精算後 (点)"><input type="text" class="result readonly" value="-20,000" readonly tabindex="-1"></td>
+        <td data-label="Pay"><input type="text" class="pay readonly" value="-2,000" readonly tabindex="-1"></td>
+        <td data-label=""><button class="${checkoutClass}" data-time="${checkoutTime}" onclick="window.toggleCheckout(this)">${checkoutText}</button></td>
+        <td data-label=""><button class="del-btn" onclick="window.removeRow(this)">✖ 削除</button></td>
+      `;
+      return tr;
+    };
+
+    window.addRow = function() { document.getElementById('tableBody').appendChild(window.createRow()); window.calculate(); };
+    window.removeRow = function(btn) { btn.closest('tr').remove(); window.calculate(); };
+    window.closeSaveImageOverlay = function() { document.getElementById('saveImageOverlay').classList.remove('show'); };
+    window.closeAndReset = function() { if(confirm("データをすべてリセットして次のゲームの準備をしますか？\n（※画像の保存忘れにご注意ください）")) { set(ref(db, 'pokerSession/players'), []); update(ref(db, 'pokerSession/timer'), { running: false, elapsedSeconds: 0, lastUpdate: Date.now() }); document.getElementById('saveImageOverlay').classList.remove('show'); setTimeout(() => location.reload(), 300); } };
+
+    window.confirmAndSave = function() {
+      const rows = document.querySelectorAll('#tableBody tr');
+      let playerData = [];
+      let hasName = false;
+      const currentPlayTime = getFormattedTime();
+      
+      rows.forEach(row => {
+        const name = row.querySelector('.name-input').value.trim();
+        if (name !== "") {
+          hasName = true;
+          const entryRaw = row.querySelector('.entry').value.replace(/,/g, '');
+          const chipsRaw = row.querySelector('.final-chips').value.replace(/,/g, '');
+          const entry = parseFloat(entryRaw) || 0;
+          const finalChips = parseFloat(chipsRaw) || 0;
+          const checkoutTime = row.querySelector('.checkout-btn').dataset.time || ""; 
+
+          const result = finalChips - (entry * STARTING_CHIPS);
+          const pay = result / RATE;
+          const finalPlayTime = checkoutTime ? checkoutTime : currentPlayTime;
+          playerData.push({ name, entry, finalChips, result, pay, playTime: finalPlayTime });
         }
       });
+      if (!hasName) { alert("プレイヤー名が入力されていません。"); return; }
+      
+      let checkTotal = 0;
+      playerData.forEach(p => checkTotal += p.pay);
+      checkTotal = Math.round(checkTotal * 100) / 100;
+      if (checkTotal !== 0) { if (!confirm("合計Payにズレがあります。このまま記録しますか？")) return; } 
+      else { if (!confirm("成績を確定し、全員分が入った画像を生成しますか？")) return; }
 
-      renderBoard(latestData);
-    });
-
-    const now = new Date();
-    document.getElementById('todayDate').innerText = now.getFullYear() + "/" + String(now.getMonth() + 1).padStart(2, '0') + "/" + String(now.getDate()).padStart(2, '0');
-
-    window.showPasswordModal = function() {
-      const modal = document.getElementById('passModal');
-      const input = document.getElementById('adminPass');
-      modal.style.display = 'flex';
-      input.value = '';
-      input.focus(); 
+      const btn = document.getElementById('saveBtn');
+      btn.innerText = "⏳ 全員分を画像にレンダリング中..."; btn.disabled = true;
+      
+      const reportArea = document.getElementById('reportArea');
+      prepareReportArea(playerData, currentPlayTime);
+      
+      setTimeout(() => {
+        html2canvas(reportArea, { 
+          scale: 2, 
+          useCORS: true, 
+          backgroundColor: null,
+          height: reportArea.scrollHeight,
+          windowHeight: reportArea.scrollHeight
+        }).then(canvas => {
+          document.getElementById('generatedImage').src = canvas.toDataURL('image/jpeg', 0.9);
+          document.getElementById('saveImageOverlay').classList.add('show');
+          btn.innerText = "💾 画像を表示しました";
+          sendToGAS(playerData, btn);
+        });
+      }, 800);
     };
 
-    window.closeModal = function() {
-      document.getElementById('passModal').style.display = 'none';
-    };
+    function prepareReportArea(data, globalTime) {
+      const now = new Date();
+      document.getElementById('reportDate').innerText = now.getFullYear() + "年" + (now.getMonth() + 1) + "月" + now.getDate() + "日";
+      document.getElementById('reportTime').innerText = globalTime;
+      
+      const sortedData = [...data].sort((a, b) => b.pay - a.pay);
+      const tbody = document.getElementById('reportTableBody');
+      tbody.innerHTML = '';
+      let totalPay = 0;
+      
+      sortedData.forEach((player, index) => {
+        totalPay += player.pay;
+        const tr = document.createElement('tr');
+        const payClass = player.pay > 0 ? 'report-plus' : (player.pay < 0 ? 'report-minus' : '');
+        const paySign = player.pay > 0 ? '+' : '';
+        tr.innerHTML = `<td>${index+1}</td><td class="name-cell">${player.name}</td><td>${player.playTime}</td><td>${player.entry}</td><td>${formatNumber(player.finalChips)}</td><td class="${payClass}">${paySign}${formatNumber(player.result)}</td><td class="pay-cell ${payClass}">${paySign}${formatNumber(player.pay)}</td>`;
+        tbody.appendChild(tr);
+      });
+      totalPay = Math.round(totalPay * 100) / 100;
+      document.getElementById('reportTotalPay').innerText = formatNumber(totalPay);
+    }
 
-    document.getElementById('adminPass').addEventListener('input', function(e) {
-      if (this.value.length === 4) {
-        if (this.value === "5424") {
-          location.href = 'calc.html';
-        } else {
-          alert("INCORRECT PIN");
-          this.value = '';
-        }
-      }
-    });
+    function sendToGAS(playerData, btn) {
+      const GAS_URL = "https://script.google.com/macros/s/AKfycbxijPOgmKGDL-UL5eAqOBKrxKVfPl4v6hsdLcWbiuwMrCWSPI5fqxu3qOmXIFTrMYCi5A/exec";
+      fetch(GAS_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(playerData) })
+      .then(() => { btn.innerText = "💾 画像を再表示"; btn.disabled = false; });
+    }
   </script>
 </body>
 </html>
